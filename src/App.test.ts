@@ -16,19 +16,34 @@ vi.mock('./composables/useRealtimeSummary', () => ({
 
 vi.mock('./lib/supabase', () => ({
   getSupabase: () => ({
-    rpc: vi.fn().mockResolvedValue({
-      data: {
-        service_date: '2026-09-24',
-        own_declaration: null,
-        preferred_transport_mode: null,
-        participants: [],
-        ride_demand: 0,
-        passenger_supply: 0,
-        missing_seats: 0,
-      },
-      error: null,
-    }),
+    rpc: vi.fn().mockImplementation(async (name: string) =>
+      name === 'get_attendance_statistics'
+        ? {
+            data: {
+              range: '30d',
+              range_start: '2026-08-26',
+              range_end: '2026-09-24',
+              points: [],
+              ranking: [],
+            },
+            error: null,
+          }
+        : todaySummary,
+    ),
   }),
+}))
+
+const todaySummary = vi.hoisted(() => ({
+  data: {
+    service_date: '2026-09-24',
+    own_declaration: null,
+    preferred_transport_mode: null,
+    participants: [],
+    ride_demand: 0,
+    passenger_supply: 0,
+    missing_seats: 0,
+  },
+  error: null,
 }))
 
 async function mountAt(path: string) {

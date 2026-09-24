@@ -39,14 +39,45 @@ describe('ParticipantSummary', () => {
     expect(wrapper.text()).toContain('Arrivo alle 12')
     expect(wrapper.text()).toContain('Luca')
     expect(wrapper.text()).toContain('Cerca un passaggio')
-    expect(wrapper.get('[role="status"]').text()).toContain('Mancano ancora 2 posti')
+    expect(wrapper.get('[role="status"]').text()).toContain('Auto insufficienti')
+    expect(wrapper.get('[role="status"]').text()).toContain('mancano 2 posti')
   })
 
-  it('shows a positive state when every rider has a seat', () => {
+  it('warns that no car is available when only riders are going', () => {
+    const wrapper = mount(ParticipantSummary, {
+      props: { participants: participants.slice(1), missingSeats: 1 },
+    })
+
+    const status = wrapper.get('[role="status"]')
+    expect(status.text()).toContain('Nessuna auto disponibile')
+    expect(status.text()).toContain('1 persona cerca un passaggio')
+    expect(status.classes()).toContain('alert-warning')
+  })
+
+  it('confirms there are enough cars when every rider has a seat', () => {
+    const wrapper = mount(ParticipantSummary, {
+      props: { participants, missingSeats: 0 },
+    })
+
+    const status = wrapper.get('[role="status"]')
+    expect(status.text()).toContain('Auto sufficienti')
+    expect(status.text()).toContain('3 posti liberi')
+    expect(status.classes()).toContain('alert-success')
+  })
+
+  it('says nobody needs a ride when there are no riders', () => {
     const wrapper = mount(ParticipantSummary, {
       props: { participants: participants.slice(0, 1), missingSeats: 0 },
     })
 
-    expect(wrapper.get('[role="status"]').text()).toContain('Tutti hanno un posto')
+    expect(wrapper.get('[role="status"]').text()).toContain('Nessuno cerca un passaggio')
+  })
+
+  it('hides the travel status when nobody is going', () => {
+    const wrapper = mount(ParticipantSummary, {
+      props: { participants: [], missingSeats: 0 },
+    })
+
+    expect(wrapper.find('[role="status"]').exists()).toBe(false)
   })
 })
