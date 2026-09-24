@@ -1,0 +1,97 @@
+@import 'tailwindcss';
+@plugin 'daisyui' {
+  themes:
+    extera --default,
+    extera-dark --prefersdark;
+}
+
+@plugin 'daisyui/theme' {
+  name: 'extera';
+  default: true;
+  color-scheme: light;
+  --color-base-100: oklch(98% 0.018 88);
+  --color-base-200: oklch(95% 0.03 88);
+  --color-base-300: oklch(89% 0.045 82);
+  --color-base-content: oklch(25% 0.035 42);
+  --color-primary: oklch(67% 0.2 35);
+  --color-primary-content: oklch(98% 0.01 35);
+  --color-secondary: oklch(62% 0.14 188);
+  --color-secondary-content: oklch(98% 0.01 188);
+  --color-accent: oklch(78% 0.16 88);
+  --color-accent-content: oklch(27% 0.05 70);
+  --color-neutral: oklch(31% 0.035 42);
+  --color-neutral-content: oklch(96% 0.02 88);
+  --color-info: oklch(70% 0.13 230);
+  --color-success: oklch(65% 0.16 145);
+  --color-warning: oklch(78% 0.16 80);
+  --color-error: oklch(62% 0.2 25);
+  --radius-box: 1.6rem;
+  --radius-field: 0.9rem;
+}
+
+@plugin 'daisyui/theme' {
+  name: 'extera-dark';
+  prefersdark: true;
+  color-scheme: dark;
+  --color-base-100: oklch(22% 0.025 42);
+  --color-base-200: oklch(18% 0.025 42);
+  --color-base-300: oklch(31% 0.035 42);
+  --color-base-content: oklch(94% 0.025 88);
+  --color-primary: oklch(72% 0.18 35);
+  --color-primary-content: oklch(19% 0.03 35);
+  --color-secondary: oklch(72% 0.13 188);
+  --color-secondary-content: oklch(18% 0.025 188);
+  --color-accent: oklch(81% 0.14 88);
+  --color-accent-content: oklch(20% 0.04 70);
+  --color-neutral: oklch(86% 0.03 88);
+  --color-neutral-content: oklch(20% 0.025 42);
+  --color-info: oklch(74% 0.12 230);
+  --color-success: oklch(72% 0.14 145);
+  --color-warning: oklch(82% 0.14 80);
+  --color-error: oklch(70% 0.18 25);
+  --radius-box: 1.6rem;
+  --radius-field: 0.9rem;
+}
+
+:root {
+  font-family: Inter, ui-rounded, system-ui, sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  min-width: 20rem;
+  min-height: 100svh;
+  margin: 0;
+  background:
+    radial-gradient(
+      circle at 15% 10%,
+      color-mix(in oklab, var(--color-primary) 14%, transparent),
+      transparent 26rem
+    ),
+    var(--color-base-200);
+}
+
+.organic-card {
+  border: 1px solid color-mix(in oklab, var(--color-base-content) 12%, transparent);
+  border-radius: 2.4rem 1.5rem 2.1rem 1.7rem;
+  background: var(--color-base-100);
+  padding: 2rem;
+  box-shadow: 0 1.2rem 3rem color-mix(in oklab, var(--color-neutral) 10%, transparent);
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
