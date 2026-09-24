@@ -18,3 +18,13 @@ npm run verify
 ```
 
 This command runs strict type checking, linting, formatting checks, unit tests, and the production build.
+
+## Local database
+
+Docker is required for the local Supabase stack.
+
+```bash
+npm run db:start
+npm run test:db
+npm run db:stop
+```

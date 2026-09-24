@@ -1,0 +1,1 @@
+-- Deterministic product fixtures will be introduced with their owning capabilities.
