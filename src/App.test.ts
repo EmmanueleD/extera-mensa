@@ -56,6 +56,7 @@ describe('application shell', () => {
     const wrapper = await mountAt('/today')
     await wrapper.get('a[href="/statistics"]').trigger('click')
     await flushPromises()
-    expect(wrapper.text()).toContain('Grafico e classifica')
+    expect(wrapper.find('[role="group"][aria-label="Intervallo temporale"]').exists()).toBe(true)
+    expect(wrapper.text()).toContain('Andamento')
   })
 })

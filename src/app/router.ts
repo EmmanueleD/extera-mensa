@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuth } from '../composables/useAuth'
 import AuthPage from '../pages/AuthPage.vue'
-import StatisticsPage from '../pages/StatisticsPage.vue'
 import TodayPage from '../pages/TodayPage.vue'
 import VerifyEmailPage from '../pages/VerifyEmailPage.vue'
 
@@ -25,7 +24,11 @@ export const router = createRouter({
     { path: '/update-password', component: AuthPage, props: { mode: 'update-password' } },
     { path: '/verify-email', component: VerifyEmailPage },
     { path: '/today', component: TodayPage, meta: { requiresAuth: true, shell: true } },
-    { path: '/statistics', component: StatisticsPage, meta: { requiresAuth: true, shell: true } },
+    {
+      path: '/statistics',
+      component: () => import('../pages/StatisticsPage.vue'),
+      meta: { requiresAuth: true, shell: true },
+    },
   ],
 })
 
