@@ -43,7 +43,13 @@ values
   );
 
 select is(
-  (select count(*) from public.profiles),
+  (
+    select count(*) from public.profiles
+    where id in (
+      '00000000-0000-0000-0000-000000000001',
+      '00000000-0000-0000-0000-000000000002'
+    )
+  ),
   2::bigint,
   'auth identities create profiles'
 );
@@ -78,7 +84,14 @@ select set_config(
 );
 
 select results_eq(
-  $$ select display_name from public.profiles order by display_name $$,
+  $$
+    select display_name from public.profiles
+    where id in (
+      '00000000-0000-0000-0000-000000000001',
+      '00000000-0000-0000-0000-000000000002'
+    )
+    order by display_name
+  $$,
   $$ values ('Anna'::text), ('Luca'::text) $$,
   'authenticated users can read shared profiles'
 );

@@ -4,6 +4,14 @@ import TodayPage from './TodayPage.vue'
 
 const rpc = vi.hoisted(() => vi.fn())
 vi.mock('../lib/supabase', () => ({ getSupabase: () => ({ rpc }) }))
+vi.mock('../composables/useRealtimeSummary', () => ({
+  useRealtimeSummary: () => ({
+    onlineUserIds: { value: new Set<string>() },
+    status: { value: 'connected' },
+    start: vi.fn(),
+    stop: vi.fn(),
+  }),
+}))
 
 const unanswered = {
   service_date: '2026-09-24',

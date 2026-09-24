@@ -28,11 +28,13 @@ const participants = [
 describe('ParticipantSummary', () => {
   it('shows participants, transport details, messages, and missing seats', () => {
     const wrapper = mount(ParticipantSummary, {
-      props: { participants, missingSeats: 2 },
+      props: { participants, missingSeats: 2, onlineUserIds: new Set(['anna']) },
     })
 
     expect(wrapper.text()).toContain('2 partecipanti')
     expect(wrapper.text()).toContain('Anna')
+    expect(wrapper.find('[aria-label="Online"]').exists()).toBe(true)
+    expect(wrapper.find('[aria-label="Offline"]').exists()).toBe(true)
     expect(wrapper.text()).toContain('Auto · 5 posti')
     expect(wrapper.text()).toContain('Arrivo alle 12')
     expect(wrapper.text()).toContain('Luca')

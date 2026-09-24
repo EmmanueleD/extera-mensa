@@ -1,11 +1,20 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import type { RealtimeStatus } from '../../composables/useRealtimeSummary'
 import type { Participant } from '../../composables/useToday'
 
-const props = defineProps<{
-  participants: Participant[]
-  missingSeats: number
-}>()
+const props = withDefaults(
+  defineProps<{
+    participants: Participant[]
+    missingSeats: number
+    onlineUserIds?: Set<string>
+    connectionStatus?: RealtimeStatus
+  }>(),
+  {
+    onlineUserIds: () => new Set<string>(),
+    connectionStatus: 'disconnected',
+  },
+)
 
 const participantLabel = computed(() =>
   props.participants.length === 1 ? '1 partecipante' : `${props.participants.length} partecipanti`,
@@ -33,6 +42,9 @@ function transportLabel(participant: Participant) {
         <p class="text-sm font-bold uppercase tracking-[0.18em] text-primary">Oggi</p>
         <h1 id="participants-title" class="text-3xl font-black">{{ participantLabel }}</h1>
       </div>
+      <span v-if="connectionStatus === 'reconnecting'" class="badge badge-warning"
+        >Riconnessione…</span
+      >
     </header>
 
     <p v-if="participants.length === 0" class="organic-card text-center text-base-content/70">
@@ -52,7 +64,15 @@ function transportLabel(participant: Participant) {
         </div>
         <div class="min-w-0 flex-1">
           <div class="flex flex-wrap items-baseline justify-between gap-2">
-            <h2 class="font-black">{{ participant.display_name }}</h2>
+            <h2 class="flex items-center gap-2 font-black">
+              <span
+                class="size-2.5 rounded-full"
+                :class="onlineUserIds.has(participant.id) ? 'bg-success' : 'bg-base-300'"
+                :aria-label="onlineUserIds.has(participant.id) ? 'Online' : 'Offline'"
+                role="img"
+              ></span>
+              {{ participant.display_name }}
+            </h2>
             <span class="text-sm text-base-content/65">{{ transportLabel(participant) }}</span>
           </div>
           <p

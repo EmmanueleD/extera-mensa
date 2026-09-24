@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue'
+import { onMounted, onUnmounted, ref, watch } from 'vue'
 import ParticipantSummary from '../components/participants/ParticipantSummary.vue'
+import { useRealtimeSummary } from '../composables/useRealtimeSummary'
 import { useToday } from '../composables/useToday'
 import type { Database } from '../types/database'
 
 type TransportMode = Database['public']['Enums']['transport_mode']
 const today = useToday()
+const realtime = useRealtimeSummary()
 const attending = ref<boolean | null>(null)
 const transportMode = ref<TransportMode | null>(null)
 const carCapacity = ref(5)
@@ -31,7 +33,9 @@ watch(() => today.editing.value, resetForm)
 onMounted(async () => {
   await today.load()
   resetForm()
+  realtime.start(today.load)
 })
+onUnmounted(realtime.stop)
 </script>
 
 <template>
@@ -45,6 +49,8 @@ onMounted(async () => {
       v-else-if="today.answered.value && !today.editing.value && today.state.value"
       :participants="today.state.value.participants"
       :missing-seats="today.state.value.missing_seats"
+      :online-user-ids="realtime.onlineUserIds.value"
+      :connection-status="realtime.status.value"
     />
     <form
       v-else

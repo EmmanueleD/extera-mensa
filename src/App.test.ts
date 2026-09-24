@@ -5,6 +5,15 @@ import App from './App.vue'
 import StatisticsPage from './pages/StatisticsPage.vue'
 import TodayPage from './pages/TodayPage.vue'
 
+vi.mock('./composables/useRealtimeSummary', () => ({
+  useRealtimeSummary: () => ({
+    onlineUserIds: { value: new Set<string>() },
+    status: { value: 'connected' },
+    start: vi.fn(),
+    stop: vi.fn(),
+  }),
+}))
+
 vi.mock('./lib/supabase', () => ({
   getSupabase: () => ({
     rpc: vi.fn().mockResolvedValue({
