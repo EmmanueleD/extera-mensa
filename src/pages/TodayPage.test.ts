@@ -29,18 +29,65 @@ beforeEach(() => {
 })
 
 describe('TodayPage', () => {
-  it('saves an attending user with one transport mode', async () => {
+  it('offers only the ride and car options', async () => {
+    const wrapper = mount(TodayPage)
+    await flushPromises()
+    await wrapper.get('[data-answer="yes"]').trigger('click')
+
+    const values = wrapper
+      .findAll('input[name="transportMode"]')
+      .map((input) => (input.element as HTMLInputElement).value)
+    expect(values).toEqual(['needs_ride', 'offers_car'])
+    expect(wrapper.text()).toContain('Ho bisogno di un passaggio')
+    expect(wrapper.text()).toContain('Prendo la macchina')
+    expect(wrapper.find('[value="autonomous"]').exists()).toBe(false)
+  })
+
+  it('defaults a legacy autonomous preference to asking for a ride', async () => {
     const wrapper = mount(TodayPage)
     await flushPromises()
 
     await wrapper.get('[data-answer="yes"]').trigger('click')
-    expect((wrapper.get('[value="autonomous"]').element as HTMLInputElement).checked).toBe(true)
+    expect((wrapper.get('[value="needs_ride"]').element as HTMLInputElement).checked).toBe(true)
     await wrapper.get('form').trigger('submit')
     await flushPromises()
 
     expect(rpc).toHaveBeenCalledWith('set_today_declaration', {
       p_attending: true,
-      p_transport_mode: 'autonomous',
+      p_transport_mode: 'needs_ride',
+    })
+  })
+
+  it('defaults to asking for a ride without a preference', async () => {
+    rpc.mockResolvedValue({
+      data: { ...unanswered, preferred_transport_mode: null },
+      error: null,
+    })
+    const wrapper = mount(TodayPage)
+    await flushPromises()
+
+    await wrapper.get('[data-answer="yes"]').trigger('click')
+    expect((wrapper.get('[value="needs_ride"]').element as HTMLInputElement).checked).toBe(true)
+  })
+
+  it('saves a driver with the car capacity', async () => {
+    rpc.mockResolvedValue({
+      data: { ...unanswered, preferred_transport_mode: 'offers_car' },
+      error: null,
+    })
+    const wrapper = mount(TodayPage)
+    await flushPromises()
+
+    await wrapper.get('[data-answer="yes"]').trigger('click')
+    expect((wrapper.get('[value="offers_car"]').element as HTMLInputElement).checked).toBe(true)
+    await wrapper.get('input[type="number"]').setValue(4)
+    await wrapper.get('form').trigger('submit')
+    await flushPromises()
+
+    expect(rpc).toHaveBeenCalledWith('set_today_declaration', {
+      p_attending: true,
+      p_transport_mode: 'offers_car',
+      p_car_capacity: 4,
     })
   })
 
@@ -65,6 +112,6 @@ describe('TodayPage', () => {
     await flushPromises()
 
     expect(wrapper.get('[role="alert"]').text()).toContain('Connessione non disponibile')
-    expect((wrapper.get('[value="autonomous"]').element as HTMLInputElement).checked).toBe(true)
+    expect((wrapper.get('[value="needs_ride"]').element as HTMLInputElement).checked).toBe(true)
   })
 })
