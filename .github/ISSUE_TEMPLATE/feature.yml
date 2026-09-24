@@ -1,0 +1,46 @@
+name: Feature request
+description: Propose a reviewed product or engineering change
+title: "feat: "
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What user or engineering problem should this change solve?
+    validations:
+      required: true
+
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Proposed outcome
+      description: Describe the observable result, not only the implementation.
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: List the checks that prove the change is complete.
+      placeholder: |
+        - [ ] First observable outcome
+        - [ ] Second observable outcome
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope and non-goals
+      description: State what belongs in this change and what is intentionally excluded.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: Confirmation
+      options:
+        - label: I verified that no open or closed issue already covers this change.
+          required: true
