@@ -1,12 +1,41 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import StatisticsPage from '../pages/StatisticsPage.vue'
+import { useAuth } from '../composables/useAuth'
+import AuthPage from '../pages/AuthPage.vue'
 import TodayPage from '../pages/TodayPage.vue'
+import VerifyEmailPage from '../pages/VerifyEmailPage.vue'
 
 export const router = createRouter({
   history: createWebHistory(),
   routes: [
     { path: '/', redirect: '/today' },
-    { path: '/today', component: TodayPage },
-    { path: '/statistics', component: StatisticsPage },
+    { path: '/login', component: AuthPage, props: { mode: 'login' }, meta: { guestOnly: true } },
+    {
+      path: '/register',
+      component: AuthPage,
+      props: { mode: 'register' },
+      meta: { guestOnly: true },
+    },
+    {
+      path: '/recover-password',
+      component: AuthPage,
+      props: { mode: 'recover' },
+      meta: { guestOnly: true },
+    },
+    { path: '/update-password', component: AuthPage, props: { mode: 'update-password' } },
+    { path: '/verify-email', component: VerifyEmailPage },
+    { path: '/today', component: TodayPage, meta: { requiresAuth: true, shell: true } },
+    {
+      path: '/statistics',
+      component: () => import('../pages/StatisticsPage.vue'),
+      meta: { requiresAuth: true, shell: true },
+    },
   ],
+})
+
+router.beforeEach(async (to) => {
+  const auth = useAuth()
+  await auth.initialize()
+  if (to.meta.requiresAuth && !auth.user.value)
+    return { path: '/login', query: { next: to.fullPath } }
+  if (to.meta.guestOnly && auth.user.value) return '/today'
 })

@@ -3,7 +3,7 @@ import pluginVue from 'eslint-plugin-vue'
 import tseslint from 'typescript-eslint'
 
 export default [
-  { ignores: ['coverage/**', 'dist/**'] },
+  { ignores: ['coverage/**', 'dist/**', 'src/types/database.ts'] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   ...pluginVue.configs['flat/recommended'],
@@ -13,6 +13,9 @@ export default [
       parserOptions: { parser: tseslint.parser },
     },
     rules: {
+      'vue/html-closing-bracket-newline': 'off',
+      'vue/html-indent': 'off',
+      'vue/html-self-closing': 'off',
       'vue/max-attributes-per-line': 'off',
       'vue/singleline-html-element-content-newline': 'off',
     },

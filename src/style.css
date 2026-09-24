@@ -57,6 +57,25 @@
   font-family: Inter, ui-rounded, system-ui, sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
+
+  /* Curated avatar palette. The only colors a generated avatar may use. */
+  --avatar-coral: oklch(67% 0.2 35);
+  --avatar-teal: oklch(62% 0.14 188);
+  --avatar-sun: oklch(78% 0.16 88);
+  --avatar-violet: oklch(60% 0.19 295);
+  --avatar-blue: oklch(62% 0.16 245);
+  --avatar-pink: oklch(70% 0.17 350);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --avatar-coral: oklch(72% 0.18 35);
+    --avatar-teal: oklch(72% 0.13 188);
+    --avatar-sun: oklch(81% 0.14 88);
+    --avatar-violet: oklch(72% 0.17 295);
+    --avatar-blue: oklch(72% 0.14 245);
+    --avatar-pink: oklch(76% 0.15 350);
+  }
 }
 
 body {
@@ -83,6 +102,22 @@ body {
 :focus-visible {
   outline: 3px solid var(--color-primary);
   outline-offset: 3px;
+}
+
+@keyframes avatar-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.04);
+  }
+}
+
+.avatar-breathe {
+  transform-box: view-box;
+  transform-origin: 50px 50px;
+  animation: avatar-breathe 6s ease-in-out infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
