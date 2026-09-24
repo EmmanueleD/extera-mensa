@@ -31,7 +31,7 @@ In the production car scene, car occupants share one name row and a separate mes
 - [x] T4 Push the initial refinement branch. Route: parent delivery.
 - [x] T5 Replace duplicated identity groups with seat-anchored bubbles and initial/name interactions for hover, focus, and tap. Route: delegated writer.
 - [x] T6 Run aggregate verification, commit, and push the refinement. Route: delegated verifier plus parent delivery.
-- [ ] T7 Open a pull request when authorized. Route: parent delivery.
+- [x] T7 Open a pull request when authorized. Route: parent delivery.
 
 ## Acceptance criteria
 
@@ -59,9 +59,10 @@ Branch `fix/participant-association`, based on production `main` after PR #17.
 - Product decision: use hover on pointer devices, focus for keyboards, and tap on touch devices to reveal the full name; keep bubbles above the actual in-car avatars.
 - T5 done: messages now live above their occupied seats; initials are visible by default; hover/focus/tap reveals the full name and scales the avatar. Alternating message lanes use a visible connector to preserve seat ownership. Focused test passed: 1 file, 9 tests.
 - T6 verified: independent `npm run verify` passed typecheck, ESLint, Prettier, 13 files / 82 tests, and production build. Implementation commit `4d347c6`.
+- T7 done: PR #19 opened from `fix/participant-association` to `main` with `type:feature`; initial Vercel preview checks passed.
 - Native assessment was unassessable because untracked ODD/CodeGraph files require declaration; with RDD off, the independent verifier path was followed.
 - Engram mirror unavailable because the local Engram server predates the active CLI.
 
 ## Next step
 
-Push the verified commits and open the pull request when authorized.
+Review and merge PR #19 when desired.
