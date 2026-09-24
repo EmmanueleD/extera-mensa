@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
 import { useAuth } from '../../composables/useAuth'
+import { useProfile } from '../../composables/useProfile'
 import { useToday } from '../../composables/useToday'
 
 const router = useRouter()
 const today = useToday()
+const profile = useProfile()
 
 async function logout() {
   if (await useAuth().signOut()) await router.push('/login')
@@ -28,6 +30,9 @@ async function logout() {
         Modifica risposta
       </button>
       <RouterLink class="btn btn-ghost btn-sm" to="/today">Oggi</RouterLink>
+      <button class="btn btn-ghost btn-sm" type="button" @click="profile.openDrawer">
+        Profilo
+      </button>
       <RouterLink class="btn btn-ghost btn-sm" to="/statistics">Statistiche</RouterLink>
       <button class="btn btn-ghost btn-sm" type="button" @click="logout">Esci</button>
     </nav>

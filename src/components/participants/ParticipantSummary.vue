@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import OrganicAvatar from '../avatar/OrganicAvatar.vue'
 import type { RealtimeStatus } from '../../composables/useRealtimeSummary'
 import type { Participant } from '../../composables/useToday'
+import { messageTextClass } from '../../lib/profile'
 
 const props = withDefaults(
   defineProps<{
@@ -20,14 +21,6 @@ const props = withDefaults(
 const participantLabel = computed(() =>
   props.participants.length === 1 ? '1 partecipante' : `${props.participants.length} partecipanti`,
 )
-
-const messageColors: Record<string, string> = {
-  ink: 'text-base-content',
-  coral: 'text-primary',
-  teal: 'text-secondary',
-  violet: 'text-violet-700 dark:text-violet-300',
-  blue: 'text-blue-700 dark:text-blue-300',
-}
 
 function transportLabel(participant: Participant) {
   if (participant.transport_mode === 'offers_car') return `Auto · ${participant.car_capacity} posti`
@@ -78,7 +71,7 @@ function transportLabel(participant: Participant) {
           <p
             v-if="participant.message"
             class="mt-2 rounded-2xl rounded-tl-sm bg-base-200 px-3 py-2 text-sm"
-            :class="messageColors[participant.message_text_color] ?? messageColors.ink"
+            :class="messageTextClass(participant.message_text_color)"
           >
             “{{ participant.message }}”
           </p>
