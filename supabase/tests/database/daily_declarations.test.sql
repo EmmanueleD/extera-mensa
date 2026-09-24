@@ -1,7 +1,7 @@
 begin;
 
 create extension if not exists pgtap with schema extensions;
-select plan(21);
+select plan(22);
 
 select has_table('public', 'daily_declarations', 'daily declarations table exists');
 select has_pk('public', 'daily_declarations', 'daily declarations have a composite key');
@@ -82,6 +82,20 @@ select is(
   jsonb_array_length(public.get_today_state() -> 'participants'),
   2,
   'summary lists all attendees'
+);
+select results_eq(
+  $$
+    select (participant ->> 'id')::uuid, (participant ->> 'declared_at')::timestamptz
+    from jsonb_array_elements(public.get_today_state() -> 'participants') as participant
+    order by 1
+  $$,
+  $$
+    select user_id, created_at
+    from public.daily_declarations
+    where service_date = public.current_service_date() and attending
+    order by 1
+  $$,
+  'each participant exposes when they declared today'
 );
 select is(
   public.get_today_state() -> 'own_declaration' ->> 'transport_mode',

@@ -12,6 +12,7 @@ const participants = [
     message_text_color: 'ink',
     transport_mode: 'offers_car' as const,
     car_capacity: 5,
+    declared_at: '2026-09-24T09:00:00Z',
   },
   {
     id: 'luca',
@@ -22,6 +23,7 @@ const participants = [
     message_text_color: 'blue',
     transport_mode: 'needs_ride' as const,
     car_capacity: null,
+    declared_at: '2026-09-24T09:05:00Z',
   },
 ]
 

@@ -14,6 +14,8 @@ export interface Participant {
   message_text_color: string
   transport_mode: TransportMode
   car_capacity: number | null
+  /** When the participant first declared today (ISO timestamp); drives seat order. */
+  declared_at: string
 }
 
 export interface TodayState {
