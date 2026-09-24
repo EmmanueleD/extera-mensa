@@ -1,6 +1,7 @@
 import type { Session, User } from '@supabase/supabase-js'
 import { ref } from 'vue'
 import { getSupabase } from '../lib/supabase'
+import { loginIdentifierToEmail, normalizeUsername, usernameToEmail } from '../lib/username'
 
 const session = ref<Session | null>(null)
 const user = ref<User | null>(null)
@@ -53,36 +54,36 @@ export function useAuth() {
     return initialization
   }
 
-  const signUp = (displayName: string, email: string, password: string) =>
+  async function signUp(username: string, displayName: string, password: string) {
+    loading.value = true
+    error.value = null
+    try {
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email: usernameToEmail(username),
+        password,
+        options: {
+          data: { display_name: displayName.trim(), username: normalizeUsername(username) },
+        },
+      })
+      if (signUpError)
+        return message('Nome utente o nome visualizzato già utilizzati, oppure dati non validi.')
+      if (!data.session)
+        return message(
+          'Account creato, ma l’accesso non è ancora abilitato. Contatta l’amministratore.',
+        )
+      return true
+    } catch {
+      return message('Connessione non disponibile. Riprova.')
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const signIn = (identifier: string, password: string) =>
     run(
       () =>
-        supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: { display_name: displayName.trim() },
-            emailRedirectTo: `${window.location.origin}/today`,
-          },
-        }),
-      'Email o nome già utilizzati, oppure dati non validi.',
-    )
-
-  const signIn = (email: string, password: string) =>
-    run(() => supabase.auth.signInWithPassword({ email, password }), 'Credenziali non valide.')
-
-  const recoverPassword = (email: string) =>
-    run(
-      () =>
-        supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: `${window.location.origin}/update-password`,
-        }),
-      'Non è stato possibile inviare il messaggio di recupero.',
-    )
-
-  const updatePassword = (password: string) =>
-    run(
-      () => supabase.auth.updateUser({ password }),
-      'Non è stato possibile aggiornare la password.',
+        supabase.auth.signInWithPassword({ email: loginIdentifierToEmail(identifier), password }),
+      'Credenziali non valide.',
     )
 
   const signOut = () => run(() => supabase.auth.signOut(), 'Non è stato possibile uscire.')
@@ -96,8 +97,6 @@ export function useAuth() {
     initialize,
     signUp,
     signIn,
-    recoverPassword,
-    updatePassword,
     signOut,
   }
 }
