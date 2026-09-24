@@ -3,7 +3,7 @@ import AppTopbar from './components/layout/AppTopbar.vue'
 </script>
 
 <template>
-  <AppTopbar />
+  <AppTopbar v-if="$route.meta.shell" />
   <main>
     <RouterView />
   </main>

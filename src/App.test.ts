@@ -10,8 +10,8 @@ async function mountAt(path: string) {
     history: createMemoryHistory(),
     routes: [
       { path: '/', redirect: '/today' },
-      { path: '/today', component: TodayPage },
-      { path: '/statistics', component: StatisticsPage },
+      { path: '/today', component: TodayPage, meta: { shell: true } },
+      { path: '/statistics', component: StatisticsPage, meta: { shell: true } },
     ],
   })
   await router.push(path)
