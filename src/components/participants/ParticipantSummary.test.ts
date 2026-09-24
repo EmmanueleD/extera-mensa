@@ -39,7 +39,7 @@ function rider(id: string, declared_at: string, message: string | null = null) {
 }
 
 describe('ParticipantSummary', () => {
-  it('shows participants in a car with presence and messages, without transport labels', () => {
+  it('keeps each message and identity control in the matching occupied seat', async () => {
     const wrapper = mount(ParticipantSummary, {
       props: { participants, missingSeats: 0, onlineUserIds: new Set(['anna']) },
     })
@@ -51,17 +51,23 @@ describe('ParticipantSummary', () => {
     expect(car.find('[aria-label="Anna, alla guida"]').exists()).toBe(true)
     expect(car.find('[aria-label="Luca"]').exists()).toBe(true)
     expect(car.findAll('[aria-label="Posto libero"]')).toHaveLength(3)
-    const occupantGroups = wrapper.findAll('[data-testid="carpool-occupant"]')
-    expect(occupantGroups).toHaveLength(2)
-    expect(occupantGroups[0].attributes('aria-label')).toBe('Anna')
-    expect(occupantGroups[0].text()).toContain('Anna')
-    expect(occupantGroups[0].get('.speech-bubble').text()).toBe('Arrivo alle 12')
-    expect(occupantGroups[0].find('[aria-label="Online"]').exists()).toBe(true)
-    expect(occupantGroups[0].find('svg[aria-hidden="true"]').exists()).toBe(true)
-    expect(occupantGroups[1].attributes('aria-label')).toBe('Luca')
-    expect(occupantGroups[1].text()).toContain('Luca')
-    expect(occupantGroups[1].find('.speech-bubble').exists()).toBe(false)
-    expect(occupantGroups[1].find('[aria-label="Offline"]').exists()).toBe(true)
+    const occupiedSeats = wrapper.findAll('[data-testid="carpool-occupant"]')
+    expect(occupiedSeats).toHaveLength(2)
+    expect(occupiedSeats[0].attributes('data-seat')).toBe('driver')
+    expect(occupiedSeats[0].get('.speech-bubble').text()).toBe('Arrivo alle 12')
+    expect(occupiedSeats[0].get('.participant-avatar-control__initial').text()).toBe('A')
+    expect(occupiedSeats[0].find('[aria-label="Online"]').exists()).toBe(true)
+    expect(occupiedSeats[1].attributes('data-seat')).toBe('passenger')
+    expect(occupiedSeats[1].find('.speech-bubble').exists()).toBe(false)
+    expect(occupiedSeats[1].get('.participant-avatar-control__initial').text()).toBe('L')
+    expect(occupiedSeats[1].find('[aria-label="Offline"]').exists()).toBe(true)
+
+    const driverControl = occupiedSeats[0].get('button')
+    expect(driverControl.attributes('aria-label')).toBe('Anna, alla guida')
+    expect(driverControl.attributes('aria-expanded')).toBe('false')
+    await driverControl.trigger('click')
+    expect(driverControl.attributes('aria-expanded')).toBe('true')
+    expect(occupiedSeats[0].get('.participant-avatar-control__name').text()).toBe('Anna')
     expect(wrapper.find('[data-testid="waiting-area"]').exists()).toBe(false)
     expect(wrapper.text()).not.toMatch(/Auto · |Cerca un passaggio|Arriva autonomamente/)
     expect(wrapper.find('.organic-card').exists()).toBe(false)
@@ -70,7 +76,11 @@ describe('ParticipantSummary', () => {
   it('fills seats in arrival order: one car of five with two riders', () => {
     const wrapper = mount(ParticipantSummary, {
       props: {
-        participants: [...participants, rider('sara', '2026-09-24T09:10:00Z')],
+        participants: [
+          participants[0],
+          { ...participants[1], message: 'Ci sono' },
+          rider('sara', '2026-09-24T09:10:00Z'),
+        ],
         missingSeats: 0,
       },
     })
@@ -80,15 +90,18 @@ describe('ParticipantSummary', () => {
       true,
     )
     expect(car.findAll('[data-seat="driver"]')).toHaveLength(1)
-    expect(
-      car
-        .findAll('[data-seat="passenger"]')
-        .map((seat) => seat.find('svg').attributes('aria-label')),
-    ).toEqual(['Luca', 'Sara'])
+    const passengerSeats = car.findAll('[data-seat="passenger"]')
+    expect(passengerSeats.map((seat) => seat.get('button').attributes('aria-label'))).toEqual([
+      'Luca',
+      'Sara',
+    ])
+    const lucaBubble = passengerSeats[0].get('.speech-bubble')
+    expect(lucaBubble.text()).toBe('Ci sono')
+    expect(lucaBubble.classes()).toContain('carpool-seat-bubble--lane-1')
     expect(car.findAll('[data-seat="empty"]')).toHaveLength(2)
   })
 
-  it('puts riders without a seat in the waiting area with their bubble', () => {
+  it('puts riders without a seat in the waiting area with their bubble', async () => {
     const smallCar = { ...participants[0], car_capacity: 2 }
     const wrapper = mount(ParticipantSummary, {
       props: {
@@ -114,6 +127,13 @@ describe('ParticipantSummary', () => {
     expect(bubble.text()).toBe('Chi mi porta?')
     expect(bubble.attributes('style')).toContain('animation-delay')
     expect(figures[0].find('.carpool-float').exists()).toBe(true)
+    expect(figures[0].get('.participant-avatar-control__initial').text()).toBe('S')
+    const control = figures[0].get('button')
+    expect(control.attributes('aria-label')).toBe('Sara')
+    expect(control.attributes('aria-expanded')).toBe('false')
+    await control.trigger('click')
+    expect(control.attributes('aria-expanded')).toBe('true')
+    expect(figures[0].get('.participant-avatar-control__name').text()).toBe('Sara')
   })
 
   it('shows a lone rider outside when no car is available', () => {
