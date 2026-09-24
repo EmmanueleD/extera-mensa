@@ -149,6 +149,38 @@ body {
   animation: carpool-drift 7s ease-in-out infinite;
 }
 
+/* Keep every person's bubble, identity cue, presence, and name in one visual unit. */
+.carpool-car__occupants {
+  display: flex;
+  max-width: 20rem;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.carpool-person,
+.carpool-figure {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.carpool-person {
+  width: 8rem;
+  gap: 0.45rem;
+}
+
+.carpool-person__identity {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  align-items: center;
+  gap: 0.45rem;
+  border-top: 2px solid color-mix(in oklab, var(--color-base-content) 16%, transparent);
+  padding-top: 0.35rem;
+}
+
 .speech-bubble {
   position: relative;
   border: 1px solid color-mix(in oklab, var(--color-base-content) 12%, transparent);
