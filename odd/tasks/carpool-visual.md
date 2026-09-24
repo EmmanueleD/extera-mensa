@@ -30,7 +30,7 @@ User request: text labels ("Auto · 5 posti", "Cerca un passaggio") and cards ar
 - [x] T2 Form: only two transport options. Route: delegated direct.
 - [x] T3 Carpool scene: seat assignment (pure function + unit tests), car SVG component, floating avatar + bubble, replace cards in `ParticipantSummary`. Route: delegated direct (writer trigger).
 - [x] T4 Delivery verification: aggregate checks, database tests where available, and production build. Route: delegated verification.
-- [ ] T5 Publication: push stacked branches and create policy-compliant issue/PR chain. Route: parent delivery.
+- [x] T5 Publication: push stacked branches and create policy-compliant issue/PR chain. Route: parent delivery.
 - [ ] T6 Production: merge approved PRs, apply the Supabase migration/configuration, and verify the Vercel deployment. Route: parent delivery.
 
 ## Acceptance criteria
@@ -55,8 +55,9 @@ Branch `feat/carpool-visual`, stacked on `feat/username-auth`. Strategy: ask-on-
 - T3 done: commit `5ddb9ed`.
 - Delivery is stacked on `3c43f83` (`feat/username-auth`) and `5a762c6` (`fix/auth-redirect-and-ride-status`).
 - T4 done: `npm run verify` passed (13 files, 82 unit tests, production build); database verification passed (4 files, 61 tests).
+- T5 done: pushed all three delivery branches; opened PR #15 (`feat/username-auth` → `main`) and PR #16 (`feat/carpool-visual` → `feat/username-auth`), both linked to approved issue #1 with `type:feature`.
 - Engram mirror unavailable because the local Engram server is older than the active CLI.
 
 ## Next step
 
-Push the branch chain and create the policy-compliant pull requests.
+Validate PR checks, then merge in order and complete the hosted Supabase/Vercel production rollout.
