@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import OrganicAvatar from '../avatar/OrganicAvatar.vue'
 import type { RealtimeStatus } from '../../composables/useRealtimeSummary'
 import type { Participant } from '../../composables/useToday'
 
@@ -56,12 +57,11 @@ function transportLabel(participant: Participant) {
         :key="participant.id"
         class="organic-card flex gap-4 p-5"
       >
-        <div
-          class="grid size-12 shrink-0 place-items-center rounded-[45%_55%_48%_52%] bg-primary font-black text-primary-content"
-          aria-hidden="true"
-        >
-          {{ participant.display_name.slice(0, 1).toLocaleUpperCase('it') }}
-        </div>
+        <OrganicAvatar
+          :seed="participant.avatar_seed"
+          :color="participant.avatar_color"
+          :size="48"
+        />
         <div class="min-w-0 flex-1">
           <div class="flex flex-wrap items-baseline justify-between gap-2">
             <h2 class="flex items-center gap-2 font-black">
