@@ -34,6 +34,44 @@ export type Database = {
   }
   public: {
     Tables: {
+      daily_declarations: {
+        Row: {
+          attending: boolean
+          car_capacity: number | null
+          created_at: string
+          service_date: string
+          transport_mode: Database["public"]["Enums"]["transport_mode"] | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          attending: boolean
+          car_capacity?: number | null
+          created_at?: string
+          service_date: string
+          transport_mode?: Database["public"]["Enums"]["transport_mode"] | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          attending?: boolean
+          car_capacity?: number | null
+          created_at?: string
+          service_date?: string
+          transport_mode?: Database["public"]["Enums"]["transport_mode"] | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_declarations_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_color: string
@@ -81,7 +119,30 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      current_service_date: { Args: never; Returns: string }
+      get_today_state: { Args: never; Returns: Json }
+      set_today_declaration: {
+        Args: {
+          p_attending: boolean
+          p_car_capacity?: number
+          p_transport_mode?: Database["public"]["Enums"]["transport_mode"]
+        }
+        Returns: {
+          attending: boolean
+          car_capacity: number | null
+          created_at: string
+          service_date: string
+          transport_mode: Database["public"]["Enums"]["transport_mode"] | null
+          updated_at: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "daily_declarations"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
     }
     Enums: {
       transport_mode: "needs_ride" | "offers_car" | "autonomous"
