@@ -120,6 +120,7 @@ export type Database = {
     }
     Functions: {
       current_service_date: { Args: never; Returns: string }
+      get_attendance_statistics: { Args: { p_range: string }; Returns: Json }
       get_today_state: { Args: never; Returns: Json }
       set_today_declaration: {
         Args: {
@@ -143,6 +144,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      statistics_range_days: { Args: { p_range: string }; Returns: number }
     }
     Enums: {
       transport_mode: "needs_ride" | "offers_car" | "autonomous"
@@ -280,3 +282,4 @@ export const Constants = {
     },
   },
 } as const
+
