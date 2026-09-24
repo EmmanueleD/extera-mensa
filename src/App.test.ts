@@ -1,9 +1,26 @@
 import { flushPromises, mount } from '@vue/test-utils'
 import { createMemoryHistory, createRouter } from 'vue-router'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import App from './App.vue'
 import StatisticsPage from './pages/StatisticsPage.vue'
 import TodayPage from './pages/TodayPage.vue'
+
+vi.mock('./lib/supabase', () => ({
+  getSupabase: () => ({
+    rpc: vi.fn().mockResolvedValue({
+      data: {
+        service_date: '2026-09-24',
+        own_declaration: null,
+        preferred_transport_mode: null,
+        participants: [],
+        ride_demand: 0,
+        passenger_supply: 0,
+        missing_seats: 0,
+      },
+      error: null,
+    }),
+  }),
+}))
 
 async function mountAt(path: string) {
   const router = createRouter({
@@ -20,8 +37,10 @@ async function mountAt(path: string) {
 }
 
 describe('application shell', () => {
-  it('renders the daily placeholder by default', async () => {
-    expect((await mountAt('/')).text()).toContain('Mensa?')
+  it('renders the daily flow by default', async () => {
+    const wrapper = await mountAt('/')
+    await flushPromises()
+    expect(wrapper.text()).toContain('Mensa?')
   })
 
   it('navigates to statistics', async () => {
