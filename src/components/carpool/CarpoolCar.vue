@@ -17,7 +17,6 @@ const SEATS_PER_ROW = 5
 const occupants = computed<Participant[]>(() => [props.car.driver, ...props.car.passengers])
 const emptySeats = computed(() => Array.from({ length: props.car.emptySeats }, (_, i) => i))
 const label = computed(() => carLabel(props.car))
-const messages = computed(() => occupants.value.filter((p) => p.message))
 
 // The car wears its driver's avatar color.
 const paint = computed(() => {
@@ -80,29 +79,32 @@ const seatGrid = computed(() => ({
       <span class="carpool-car__wheel right-5" aria-hidden="true"></span>
     </div>
 
-    <ul class="flex max-w-72 flex-wrap justify-center gap-x-3 gap-y-1 text-sm">
+    <ul class="carpool-car__occupants">
       <li
         v-for="(person, index) in occupants"
         :key="person.id"
-        class="flex items-center gap-1.5"
-        :class="index === 0 ? 'font-black' : 'font-semibold text-base-content/80'"
+        role="group"
+        :aria-label="person.display_name"
+        class="carpool-person"
+        data-testid="carpool-occupant"
       >
-        <PresenceDot :online="onlineUserIds.has(person.id)" />
-        {{ person.display_name }}
-      </li>
-    </ul>
-
-    <ul v-if="messages.length" class="flex max-w-72 flex-col items-center gap-2">
-      <li
-        v-for="person in messages"
-        :key="person.id"
-        class="speech-bubble speech-bubble--up carpool-drift"
-        :style="{ animationDelay: floatDelay(person.id) }"
-      >
-        <span class="font-bold">{{ person.display_name }}:</span>
-        <span class="ml-1" :class="messageTextClass(person.message_text_color)">{{
-          person.message
-        }}</span>
+        <p
+          v-if="person.message"
+          class="speech-bubble speech-bubble--down carpool-drift max-w-full"
+          :style="{ animationDelay: floatDelay(person.id) }"
+        >
+          <span :class="messageTextClass(person.message_text_color)">{{ person.message }}</span>
+        </p>
+        <div class="carpool-person__identity">
+          <OrganicAvatar :seed="person.avatar_seed" :color="person.avatar_color" :size="30" />
+          <p
+            class="flex min-w-0 items-center gap-1.5 text-sm"
+            :class="index === 0 ? 'font-black' : 'font-semibold text-base-content/80'"
+          >
+            <PresenceDot :online="onlineUserIds.has(person.id)" />
+            <span class="truncate">{{ person.display_name }}</span>
+          </p>
+        </div>
       </li>
     </ul>
   </li>
