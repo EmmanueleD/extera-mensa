@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import OrganicAvatar from '../avatar/OrganicAvatar.vue'
 import PresenceDot from './PresenceDot.vue'
 import type { Participant } from '../../composables/useToday'
@@ -10,6 +10,10 @@ const props = defineProps<{ participant: Participant; online: boolean }>()
 
 // Same phase for avatar and bubble so the person moves as one, but out of sync with others.
 const phase = computed(() => ({ animationDelay: floatDelay(props.participant.id) }))
+const expanded = ref(false)
+const initial = computed(
+  () => Array.from(props.participant.display_name.trim())[0]?.toLocaleUpperCase('it-IT') ?? '?',
+)
 </script>
 
 <template>
@@ -24,16 +28,28 @@ const phase = computed(() => ({ animationDelay: floatDelay(props.participant.id)
         {{ participant.message }}
       </p>
       <div class="carpool-float" :style="phase">
-        <OrganicAvatar
-          :seed="participant.avatar_seed"
-          :color="participant.avatar_color"
-          :size="56"
-        />
+        <button
+          type="button"
+          class="participant-avatar-control participant-avatar-control--waiting"
+          :class="{ 'participant-avatar-control--expanded': expanded }"
+          :aria-label="participant.display_name"
+          :aria-expanded="expanded"
+          @click="expanded = !expanded"
+        >
+          <span class="participant-avatar-control__avatar">
+            <OrganicAvatar
+              :seed="participant.avatar_seed"
+              :color="participant.avatar_color"
+              :size="56"
+            />
+          </span>
+          <span class="participant-avatar-control__initial" aria-hidden="true">{{ initial }}</span>
+          <PresenceDot :online="online" />
+          <span class="participant-avatar-control__name" aria-hidden="true">
+            {{ participant.display_name }}
+          </span>
+        </button>
       </div>
-      <p class="mt-1.5 flex max-w-full items-center gap-1.5 text-sm font-bold">
-        <PresenceDot :online="online" />
-        <span class="truncate">{{ participant.display_name }}</span>
-      </p>
     </div>
   </li>
 </template>

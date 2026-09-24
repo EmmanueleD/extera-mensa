@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import OrganicAvatar from '../avatar/OrganicAvatar.vue'
 import PresenceDot from './PresenceDot.vue'
 import type { Participant } from '../../composables/useToday'
@@ -17,6 +17,21 @@ const SEATS_PER_ROW = 5
 const occupants = computed<Participant[]>(() => [props.car.driver, ...props.car.passengers])
 const emptySeats = computed(() => Array.from({ length: props.car.emptySeats }, (_, i) => i))
 const label = computed(() => carLabel(props.car))
+const hasMessages = computed(() => occupants.value.some((person) => person.message))
+const expandedParticipantIds = ref(new Set<string>())
+
+const participantInitial = (person: Participant) =>
+  Array.from(person.display_name.trim())[0]?.toLocaleUpperCase('it-IT') ?? '?'
+
+const participantLabel = (person: Participant, index: number) =>
+  index === 0 ? `${person.display_name}, alla guida` : person.display_name
+
+const toggleParticipant = (id: string) => {
+  const next = new Set(expandedParticipantIds.value)
+  if (next.has(id)) next.delete(id)
+  else next.add(id)
+  expandedParticipantIds.value = next
+}
 
 // The car wears its driver's avatar color.
 const paint = computed(() => {
@@ -30,18 +45,54 @@ const seatGrid = computed(() => ({
 
 <template>
   <li class="flex max-w-full flex-col items-center gap-3" data-testid="carpool-car">
-    <div role="group" :aria-label="label" class="carpool-car" :style="paint">
+    <div
+      role="group"
+      :aria-label="label"
+      class="carpool-car"
+      :class="{ 'carpool-car--has-messages': hasMessages }"
+      :style="paint"
+    >
       <div class="carpool-car__cabin">
         <div class="grid gap-1.5" :style="seatGrid">
-          <span class="carpool-car__seat relative" data-seat="driver">
-            <OrganicAvatar
-              :seed="car.driver.avatar_seed"
-              :color="car.driver.avatar_color"
-              :label="`${car.driver.display_name}, alla guida`"
-              :size="34"
-            />
+          <div
+            v-for="(person, index) in occupants"
+            :key="person.id"
+            class="carpool-car__seat carpool-occupied-seat"
+            :data-seat="index === 0 ? 'driver' : 'passenger'"
+            data-testid="carpool-occupant"
+          >
+            <p
+              v-if="person.message"
+              class="speech-bubble speech-bubble--down carpool-drift carpool-seat-bubble"
+              :class="`carpool-seat-bubble--lane-${index % 2}`"
+              :style="{ animationDelay: floatDelay(person.id) }"
+            >
+              <span :class="messageTextClass(person.message_text_color)">{{ person.message }}</span>
+            </p>
+            <button
+              type="button"
+              class="participant-avatar-control"
+              :class="{
+                'participant-avatar-control--expanded': expandedParticipantIds.has(person.id),
+              }"
+              :aria-label="participantLabel(person, index)"
+              :aria-expanded="expandedParticipantIds.has(person.id)"
+              @click="toggleParticipant(person.id)"
+            >
+              <span class="participant-avatar-control__avatar">
+                <OrganicAvatar :seed="person.avatar_seed" :color="person.avatar_color" :size="34" />
+              </span>
+              <span class="participant-avatar-control__initial" aria-hidden="true">
+                {{ participantInitial(person) }}
+              </span>
+              <PresenceDot :online="onlineUserIds.has(person.id)" />
+              <span class="participant-avatar-control__name" aria-hidden="true">
+                {{ person.display_name }}
+              </span>
+            </button>
             <!-- Steering wheel marks the driver seat. -->
             <svg
+              v-if="index === 0"
               class="absolute -right-1 -bottom-1 size-3.5 text-base-content"
               viewBox="0 0 16 16"
               aria-hidden="true"
@@ -50,20 +101,7 @@ const seatGrid = computed(() => ({
               <circle cx="8" cy="8" r="5" fill="none" stroke="currentColor" stroke-width="1.8" />
               <path d="M3 8h10M8 8v5" stroke="currentColor" stroke-width="1.6" />
             </svg>
-          </span>
-          <span
-            v-for="passenger in car.passengers"
-            :key="passenger.id"
-            class="carpool-car__seat"
-            data-seat="passenger"
-          >
-            <OrganicAvatar
-              :seed="passenger.avatar_seed"
-              :color="passenger.avatar_color"
-              :label="passenger.display_name"
-              :size="34"
-            />
-          </span>
+          </div>
           <span
             v-for="seat in emptySeats"
             :key="`empty-${seat}`"
@@ -78,34 +116,5 @@ const seatGrid = computed(() => ({
       <span class="carpool-car__wheel left-5" aria-hidden="true"></span>
       <span class="carpool-car__wheel right-5" aria-hidden="true"></span>
     </div>
-
-    <ul class="carpool-car__occupants">
-      <li
-        v-for="(person, index) in occupants"
-        :key="person.id"
-        role="group"
-        :aria-label="person.display_name"
-        class="carpool-person"
-        data-testid="carpool-occupant"
-      >
-        <p
-          v-if="person.message"
-          class="speech-bubble speech-bubble--down carpool-drift max-w-full"
-          :style="{ animationDelay: floatDelay(person.id) }"
-        >
-          <span :class="messageTextClass(person.message_text_color)">{{ person.message }}</span>
-        </p>
-        <div class="carpool-person__identity">
-          <OrganicAvatar :seed="person.avatar_seed" :color="person.avatar_color" :size="30" />
-          <p
-            class="flex min-w-0 items-center gap-1.5 text-sm"
-            :class="index === 0 ? 'font-black' : 'font-semibold text-base-content/80'"
-          >
-            <PresenceDot :online="onlineUserIds.has(person.id)" />
-            <span class="truncate">{{ person.display_name }}</span>
-          </p>
-        </div>
-      </li>
-    </ul>
   </li>
 </template>

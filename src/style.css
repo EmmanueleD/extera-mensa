@@ -149,36 +149,121 @@ body {
   animation: carpool-drift 7s ease-in-out infinite;
 }
 
-/* Keep every person's bubble, identity cue, presence, and name in one visual unit. */
-.carpool-car__occupants {
-  display: flex;
-  max-width: 20rem;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  justify-content: center;
-  gap: 0.75rem;
-}
-
-.carpool-person,
 .carpool-figure {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.carpool-person {
-  width: 8rem;
-  gap: 0.45rem;
+/* The button owns both pointer and keyboard disclosure without duplicating identities. */
+.participant-avatar-control {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: 0.8rem;
+  background: transparent;
+  padding: 0;
+  color: inherit;
+  cursor: pointer;
 }
 
-.carpool-person__identity {
-  display: flex;
-  width: 100%;
-  min-width: 0;
-  align-items: center;
-  gap: 0.45rem;
-  border-top: 2px solid color-mix(in oklab, var(--color-base-content) 16%, transparent);
-  padding-top: 0.35rem;
+.participant-avatar-control--waiting {
+  width: 3.5rem;
+  height: 3.5rem;
+}
+
+.participant-avatar-control__avatar {
+  display: grid;
+  place-items: center;
+  transition: transform 160ms ease;
+}
+
+.participant-avatar-control:hover .participant-avatar-control__avatar,
+.participant-avatar-control:focus-visible .participant-avatar-control__avatar,
+.participant-avatar-control--expanded .participant-avatar-control__avatar {
+  transform: scale(1.08);
+}
+
+.participant-avatar-control__initial {
+  position: absolute;
+  right: -0.15rem;
+  bottom: -0.2rem;
+  display: grid;
+  min-width: 1.05rem;
+  height: 1.05rem;
+  place-items: center;
+  border-radius: 9999px;
+  background: var(--color-base-100);
+  padding: 0 0.2rem;
+  font-size: 0.625rem;
+  font-weight: 900;
+  line-height: 1;
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--color-base-content) 16%, transparent);
+}
+
+.participant-avatar-control > [role='img'] {
+  position: absolute;
+  top: 0.05rem;
+  right: 0.05rem;
+}
+
+.participant-avatar-control__name {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 0.4rem);
+  left: 50%;
+  width: max-content;
+  max-width: min(9rem, 42vw);
+  translate: -50% 0;
+  visibility: hidden;
+  border-radius: 0.55rem;
+  background: var(--color-neutral);
+  padding: 0.2rem 0.45rem;
+  color: var(--color-neutral-content);
+  font-size: 0.7rem;
+  font-weight: 800;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms ease;
+}
+
+.participant-avatar-control:hover .participant-avatar-control__name,
+.participant-avatar-control:focus-visible .participant-avatar-control__name,
+.participant-avatar-control--expanded .participant-avatar-control__name {
+  visibility: visible;
+  opacity: 1;
+}
+
+.carpool-seat-bubble {
+  position: absolute;
+  z-index: 10;
+  bottom: calc(100% + 0.65rem);
+  left: 50%;
+  width: max-content;
+  max-width: min(8rem, 36vw);
+  translate: -50% 0;
+}
+
+.carpool-seat-bubble--lane-1 {
+  bottom: calc(100% + 3.45rem);
+}
+
+/* Keep the elevated bubble's normal tail, then bridge the lane gap back to its seat. */
+.carpool-seat-bubble--lane-1::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  top: 100%;
+  left: 50%;
+  width: 2px;
+  height: 3rem;
+  background: color-mix(in oklab, var(--color-base-content) 35%, transparent);
+  translate: -50% 0;
 }
 
 .speech-bubble {
@@ -228,6 +313,10 @@ body {
   padding-bottom: 0.85rem;
 }
 
+.carpool-car--has-messages {
+  margin-top: 6.5rem;
+}
+
 .carpool-car__cabin {
   margin: 0 1.4rem 0 0.9rem;
   border-radius: 1.9rem 1.1rem 0.25rem 0.25rem / 1.6rem 1.1rem 0.25rem 0.25rem;
@@ -236,6 +325,7 @@ body {
 }
 
 .carpool-car__seat {
+  position: relative;
   display: grid;
   place-items: center;
   width: 2.5rem;
