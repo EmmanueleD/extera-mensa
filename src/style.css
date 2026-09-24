@@ -120,6 +120,153 @@ body {
   animation: avatar-breathe 6s ease-in-out infinite;
 }
 
+/* Carpool scene: free-standing people float gently, speech bubbles barely drift. */
+@keyframes carpool-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes carpool-drift {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-1.5px);
+  }
+}
+
+.carpool-float {
+  animation: carpool-float 6s ease-in-out infinite;
+}
+
+.carpool-drift {
+  animation: carpool-drift 7s ease-in-out infinite;
+}
+
+.speech-bubble {
+  position: relative;
+  border: 1px solid color-mix(in oklab, var(--color-base-content) 12%, transparent);
+  border-radius: 1.1rem;
+  background: var(--color-base-100);
+  padding: 0.4rem 0.7rem;
+  font-size: 0.8125rem;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+  box-shadow: 0 0.35rem 0.9rem color-mix(in oklab, var(--color-neutral) 8%, transparent);
+}
+
+/* Tail: a rotated square sharing the bubble border, pointing at the speaker. */
+.speech-bubble::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  width: 0.6rem;
+  height: 0.6rem;
+  background: inherit;
+  border: inherit;
+  border-radius: 0 0 0.15rem 0;
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.speech-bubble--down::after {
+  bottom: -0.34rem;
+  border-top-color: transparent;
+  border-left-color: transparent;
+}
+
+.speech-bubble--up::after {
+  top: -0.34rem;
+  border-bottom-color: transparent;
+  border-right-color: transparent;
+  border-radius: 0.15rem 0 0 0;
+}
+
+/* A side-view car facing left: cabin with seat windows, painted body, two wheels. */
+.carpool-car {
+  --car-paint: var(--color-primary);
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  padding-bottom: 0.85rem;
+}
+
+.carpool-car__cabin {
+  margin: 0 1.4rem 0 0.9rem;
+  border-radius: 1.9rem 1.1rem 0.25rem 0.25rem / 1.6rem 1.1rem 0.25rem 0.25rem;
+  background: color-mix(in oklab, var(--car-paint) 82%, var(--color-base-content));
+  padding: 0.4rem 0.55rem 0.3rem 0.8rem;
+}
+
+.carpool-car__seat {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.8rem;
+  background: color-mix(in oklab, var(--color-base-100) 82%, var(--color-info));
+}
+
+.carpool-car__seat--empty {
+  background: color-mix(in oklab, var(--color-base-100) 55%, transparent);
+}
+
+.carpool-car__empty {
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 2px dashed color-mix(in oklab, var(--color-base-content) 35%, transparent);
+  border-radius: 9999px;
+}
+
+.carpool-car__body {
+  position: relative;
+  height: 1.5rem;
+  border-radius: 1rem 1.4rem 0.8rem 0.8rem;
+  background: var(--car-paint);
+}
+
+.carpool-car__body::before,
+.carpool-car__body::after {
+  content: '';
+  position: absolute;
+  top: 0.4rem;
+  width: 0.55rem;
+  height: 0.4rem;
+  border-radius: 9999px;
+}
+
+.carpool-car__body::before {
+  left: 0.3rem;
+  background: var(--color-accent);
+}
+
+.carpool-car__body::after {
+  right: 0.3rem;
+  background: var(--color-error);
+}
+
+.carpool-car__wheel {
+  position: absolute;
+  bottom: 0;
+  width: 1.7rem;
+  height: 1.7rem;
+  border: 0.45rem solid var(--color-neutral);
+  border-radius: 9999px;
+  background: var(--color-base-300);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .carpool-float,
+  .carpool-drift {
+    animation: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
