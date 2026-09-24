@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue'
+import ParticipantSummary from '../components/participants/ParticipantSummary.vue'
 import { useToday } from '../composables/useToday'
 import type { Database } from '../types/database'
 
@@ -40,16 +41,11 @@ onMounted(async () => {
       class="loading loading-dots loading-lg"
       aria-label="Caricamento"
     ></div>
-    <div
-      v-else-if="today.answered.value && !today.editing.value"
-      class="organic-card w-full max-w-xl text-center"
-    >
-      <p class="text-sm font-bold uppercase tracking-[0.18em] text-success">Risposta salvata</p>
-      <h1 class="mt-2 text-3xl font-black">La lista di oggi è pronta</h1>
-      <p class="mt-3 text-base-content/70">
-        Il riepilogo dei partecipanti arriverà nella prossima unità.
-      </p>
-    </div>
+    <ParticipantSummary
+      v-else-if="today.answered.value && !today.editing.value && today.state.value"
+      :participants="today.state.value.participants"
+      :missing-seats="today.state.value.missing_seats"
+    />
     <form
       v-else
       class="organic-card w-full max-w-md space-y-6 text-center"

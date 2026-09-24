@@ -5,11 +5,22 @@ import type { Database } from '../types/database'
 type TransportMode = Database['public']['Enums']['transport_mode']
 type Declaration = Database['public']['Tables']['daily_declarations']['Row']
 
+export interface Participant {
+  id: string
+  display_name: string
+  message: string | null
+  avatar_seed: string
+  avatar_color: string
+  message_text_color: string
+  transport_mode: TransportMode
+  car_capacity: number | null
+}
+
 export interface TodayState {
   service_date: string
   own_declaration: Declaration | null
   preferred_transport_mode: TransportMode | null
-  participants: unknown[]
+  participants: Participant[]
   ride_demand: number
   passenger_supply: number
   missing_seats: number
