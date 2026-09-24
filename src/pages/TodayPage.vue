@@ -6,27 +6,37 @@ import { useToday } from '../composables/useToday'
 import type { Database } from '../types/database'
 
 type TransportMode = Database['public']['Enums']['transport_mode']
+// The form only offers these two modes; legacy 'autonomous' stays valid in the DB.
+type SelectableMode = Extract<TransportMode, 'needs_ride' | 'offers_car'>
 const today = useToday()
 const realtime = useRealtimeSummary()
 const attending = ref<boolean | null>(null)
-const transportMode = ref<TransportMode | null>(null)
+const transportMode = ref<SelectableMode | null>(null)
 const carCapacity = ref(5)
-const transportOptions: Array<{ value: TransportMode; label: string }> = [
-  { value: 'needs_ride', label: 'Cerco un passaggio' },
-  { value: 'offers_car', label: 'Offro la mia auto' },
-  { value: 'autonomous', label: 'Vado autonomamente' },
+const transportOptions: Array<{ value: SelectableMode; label: string }> = [
+  { value: 'needs_ride', label: 'Ho bisogno di un passaggio' },
+  { value: 'offers_car', label: 'Prendo la macchina' },
 ]
+
+/** Maps a stored mode to one the form offers, defaulting to asking for a ride. */
+function selectableMode(mode: TransportMode | null | undefined): SelectableMode {
+  return mode === 'offers_car' ? 'offers_car' : 'needs_ride'
+}
 
 function resetForm() {
   const own = today.state.value?.own_declaration
   attending.value = own?.attending ?? null
-  transportMode.value = own?.transport_mode ?? today.state.value?.preferred_transport_mode ?? null
+  transportMode.value = selectableMode(
+    own?.transport_mode ?? today.state.value?.preferred_transport_mode,
+  )
   carCapacity.value = own?.car_capacity ?? 5
 }
 
 function answerYes() {
   attending.value = true
-  transportMode.value ??= today.state.value?.preferred_transport_mode ?? null
+  transportMode.value = selectableMode(
+    transportMode.value ?? today.state.value?.preferred_transport_mode,
+  )
 }
 
 watch(() => today.editing.value, resetForm)
