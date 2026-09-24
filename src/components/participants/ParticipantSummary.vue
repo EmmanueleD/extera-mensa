@@ -22,6 +22,25 @@ const participantLabel = computed(() =>
   props.participants.length === 1 ? '1 partecipante' : `${props.participants.length} partecipanti`,
 )
 
+const plural = (count: number, one: string, many: string) => (count === 1 ? one : many)
+
+const travelStatus = computed(() => {
+  const riders = props.participants.filter((p) => p.transport_mode === 'needs_ride').length
+  const cars = props.participants.filter((p) => p.transport_mode === 'offers_car')
+  const freeSeats = cars.reduce((sum, p) => sum + Math.max(0, (p.car_capacity ?? 1) - 1), 0)
+
+  if (riders === 0) return { ok: true, text: 'Nessuno cerca un passaggio' }
+  const riderText = `${riders} ${plural(riders, 'persona cerca', 'persone cercano')} un passaggio`
+  if (cars.length === 0) return { ok: false, text: `Nessuna auto disponibile: ${riderText}` }
+  if (props.missingSeats > 0) {
+    const missing = `${props.missingSeats} ${plural(props.missingSeats, 'posto', 'posti')}`
+    return { ok: false, text: `Auto insufficienti: mancano ${missing} (${riderText})` }
+  }
+  const spare = freeSeats - riders
+  const spareText = spare > 0 ? ` · ${spare} ${plural(spare, 'posto libero', 'posti liberi')}` : ''
+  return { ok: true, text: `Auto sufficienti: tutti hanno un passaggio${spareText}` }
+})
+
 function transportLabel(participant: Participant) {
   if (participant.transport_mode === 'offers_car') return `Auto · ${participant.car_capacity} posti`
   if (participant.transport_mode === 'needs_ride') return 'Cerca un passaggio'
@@ -80,14 +99,12 @@ function transportLabel(participant: Participant) {
     </ul>
 
     <p
+      v-if="participants.length > 0"
       role="status"
       class="alert font-bold"
-      :class="missingSeats > 0 ? 'alert-warning' : 'alert-success'"
+      :class="travelStatus.ok ? 'alert-success' : 'alert-warning'"
     >
-      <span v-if="missingSeats > 0"
-        >Mancano ancora {{ missingSeats }} {{ missingSeats === 1 ? 'posto' : 'posti' }}</span
-      >
-      <span v-else>Tutti hanno un posto</span>
+      <span>{{ travelStatus.text }}</span>
     </p>
   </section>
 </template>
