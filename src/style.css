@@ -310,11 +310,8 @@ body {
   position: relative;
   display: inline-flex;
   flex-direction: column;
-  padding-bottom: 0.85rem;
-}
-
-.carpool-car--has-messages {
   margin-top: 6.5rem;
+  padding-bottom: 0.85rem;
 }
 
 .carpool-car__cabin {

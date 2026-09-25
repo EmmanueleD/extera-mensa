@@ -73,6 +73,25 @@ describe('ParticipantSummary', () => {
     expect(wrapper.find('.organic-card').exists()).toBe(false)
   })
 
+  it('keeps car and seat geometry stable when participant messages are shown', () => {
+    const withoutMessages = participants.map((participant) => ({ ...participant, message: null }))
+    const withoutMessageWrapper = mount(ParticipantSummary, {
+      props: { participants: withoutMessages, missingSeats: 0 },
+    })
+    const withMessageWrapper = mount(ParticipantSummary, {
+      props: { participants, missingSeats: 0 },
+    })
+
+    const carWithoutMessages = withoutMessageWrapper.get('[role="group"]')
+    const carWithMessages = withMessageWrapper.get('[role="group"]')
+    expect(carWithMessages.classes()).toEqual(carWithoutMessages.classes())
+    expect(carWithMessages.attributes('style')).toBe(carWithoutMessages.attributes('style'))
+    expect(carWithMessages.find('.speech-bubble').exists()).toBe(true)
+    expect(carWithMessages.get('[data-seat="driver"]').classes()).toEqual(
+      carWithoutMessages.get('[data-seat="driver"]').classes(),
+    )
+  })
+
   it('renders the OrganicAvatar SVG inside the actual driver seat control', () => {
     const wrapper = mount(ParticipantSummary, {
       props: { participants, missingSeats: 0 },
