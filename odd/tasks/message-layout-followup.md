@@ -22,7 +22,7 @@ Fix the production CSS cascade that still moves car-seat avatars when a message 
 ## Tasks
 
 - [x] T1 Car-seat cascade fix: reproduce computed `position: relative`, enforce absolute positioning, and add CSSOM regression coverage.
-- [ ] T2 Profile boundary: remove all message editing controls from `ProfileDrawer` and prove unrelated profile saves omit message fields.
+- [x] T2 Profile boundary: remove all message editing controls from `ProfileDrawer` and prove unrelated profile saves omit message fields.
 - [ ] T3 Verification: run focused tests, aggregate verification, and a browser/runtime visual check when available.
 - [ ] T4 Delivery: commit reviewable work units; push, PR, merge, and production rollout remain explicit decisions.
 
@@ -37,4 +37,5 @@ Fix the production CSS cascade that still moves car-seat avatars when a message 
 
 ## Evidence
 
-- T1 RED reproduced computed `position: relative` from the production stylesheet cascade; GREEN asserts `position: absolute` after the specificity fix. Focused Vitest 1/1, targeted ESLint/Prettier, typecheck, diff check, and independent verification passed.
+- T1 commit: `70dd29d` (`fix(carpool): keep message bubbles out of seat flow`). RED reproduced computed `position: relative`; GREEN asserts `position: absolute`. Focused Vitest 1/1, targeted ESLint/Prettier, typecheck, diff check, and independent verification passed.
+- T2 verification: ProfileDrawer suite 5/5, targeted ESLint/Prettier, typecheck, diff check, and independent structural verification passed. Update payload contains only `display_name`, `avatar_seed`, and `avatar_color`; dedicated message editor flow is unchanged.

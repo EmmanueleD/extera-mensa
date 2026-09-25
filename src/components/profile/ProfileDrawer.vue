@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, ref, watch } from 'vue'
+import { nextTick, ref, watch } from 'vue'
 import OrganicAvatar from '../avatar/OrganicAvatar.vue'
 import {
   AVATAR_COLORS,
@@ -7,15 +7,7 @@ import {
   AVATAR_PALETTE,
   regenerateAvatarSeed,
 } from '../../lib/avatar/avatar'
-import {
-  messageTextClass,
-  MESSAGE_TEXT_COLORS,
-  MESSAGE_TEXT_PALETTE,
-  PROFILE_DISPLAY_NAME_MAX,
-  PROFILE_MESSAGE_MAX,
-  validateDisplayName,
-  validateProfileMessage,
-} from '../../lib/profile'
+import { PROFILE_DISPLAY_NAME_MAX, validateDisplayName } from '../../lib/profile'
 import { useProfile } from '../../composables/useProfile'
 import { captureFocus, focusField, restoreFocus } from '../../lib/focus'
 
@@ -25,23 +17,16 @@ const emit = defineEmits<{ close: [] }>()
 const profile = useProfile()
 const nameInput = ref()
 const displayName = ref('')
-const message = ref('')
 const avatarSeed = ref('')
 const avatarColor = ref<string>(AVATAR_COLORS.CORAL)
-const messageTextColor = ref<string>(MESSAGE_TEXT_COLORS.INK)
 const fieldError = ref<string | null>(null)
 let previouslyFocused: ReturnType<typeof captureFocus> = null
-
-const messageLength = computed(() => message.value.trim().length)
-const previewClass = computed(() => messageTextClass(messageTextColor.value))
 
 function syncDraft() {
   const current = profile.profile.value
   displayName.value = current?.display_name ?? ''
-  message.value = current?.message ?? ''
   avatarSeed.value = current?.avatar_seed ?? ''
   avatarColor.value = current?.avatar_color ?? AVATAR_COLORS.CORAL
-  messageTextColor.value = current?.message_text_color ?? MESSAGE_TEXT_COLORS.INK
   fieldError.value = null
 }
 
@@ -63,19 +48,13 @@ function regenerate() {
   avatarSeed.value = regenerateAvatarSeed()
 }
 
-function clearMessage() {
-  message.value = ''
-}
-
 async function save() {
-  fieldError.value = validateDisplayName(displayName.value) ?? validateProfileMessage(message.value)
+  fieldError.value = validateDisplayName(displayName.value)
   if (fieldError.value) return
   const saved = await profile.update({
     display_name: displayName.value.trim(),
-    message: message.value.trim() || null,
     avatar_seed: avatarSeed.value,
     avatar_color: avatarColor.value,
-    message_text_color: messageTextColor.value,
   })
   if (saved) close()
 }
@@ -165,59 +144,6 @@ watch(
                 :class="avatarColor === color ? 'ring-2 ring-primary' : ''"
                 :style="{ backgroundColor: AVATAR_FILL_TOKENS[color] }"
               ></span>
-            </label>
-          </div>
-        </fieldset>
-
-        <label class="form-control block">
-          <span class="label-text font-bold">Messaggio</span>
-          <textarea
-            v-model="message"
-            class="textarea textarea-bordered mt-1 w-full"
-            rows="3"
-            aria-describedby="message-count"
-          ></textarea>
-          <span
-            id="message-count"
-            class="label-text-alt mt-1"
-            :class="messageLength > PROFILE_MESSAGE_MAX ? 'text-error' : 'text-base-content/60'"
-          >
-            {{ messageLength }}/{{ PROFILE_MESSAGE_MAX }}
-          </span>
-        </label>
-
-        <div class="flex items-center gap-2">
-          <button
-            class="btn btn-ghost btn-sm"
-            type="button"
-            data-action="clear-message"
-            :disabled="!message"
-            @click="clearMessage"
-          >
-            Cancella messaggio
-          </button>
-        </div>
-
-        <div v-if="message" class="rounded-2xl bg-base-200 px-3 py-2 text-sm" :class="previewClass">
-          “{{ message }}”
-        </div>
-
-        <fieldset>
-          <legend class="font-bold">Colore del messaggio</legend>
-          <div class="mt-2 flex flex-wrap gap-2">
-            <label
-              v-for="color in MESSAGE_TEXT_PALETTE"
-              :key="color"
-              class="label cursor-pointer justify-start gap-2 rounded-box border border-base-300 px-3"
-            >
-              <input
-                v-model="messageTextColor"
-                class="radio radio-sm"
-                type="radio"
-                name="messageTextColor"
-                :value="color"
-              />
-              <span :class="messageTextClass(color)">Aa</span>
             </label>
           </div>
         </fieldset>
