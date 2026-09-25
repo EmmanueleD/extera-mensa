@@ -39,7 +39,7 @@ The car scene should remain legible and playful without overlapping controls, av
 - Chain strategy selected by the user: `stacked-to-main`.
 - Slice 1: `fix/mobile-avatar-visuals-01-avatars`, commit `f5cc3a3`, deterministic avatar variety, 268 authored lines.
 - Slice 2: `fix/mobile-avatar-visuals-02-carpool`, commit `8f13a6d`, car visuals, touch geometry, participant labels, and responsive CSS foundation, 334 authored lines.
-- Slice 3: `fix/mobile-avatar-visuals`, shell/auth/profile/statistics responsive wiring plus ODD evidence; final commit identities are recorded below.
+- Slice 3: `fix/mobile-avatar-visuals`, commit `94c0e41`, shell/auth/profile/statistics responsive wiring plus ODD evidence, 217 authored lines before this final evidence update.
 - Each branch will be pushed without opening or merging PRs; future PRs should land in slice order and be rebased/retargeted to `main` after the preceding slice merges.
 
 ## Tasks
@@ -109,8 +109,9 @@ The car scene should remain legible and playful without overlapping controls, av
 - T4 aggregate verification: `npm run verify` passed with typecheck, lint, Prettier, 15/15 unit files and 106/106 tests, and a production build transforming 112 modules.
 - T4 real-browser smoke: Orca's embedded Chromium rendered login and registration at a 320×800 viewport. Both routes reported `clientWidth = scrollWidth = 320`, no horizontal overflow, and the captured forms/cards fit the viewport with all actions visible. The local Vite server was stopped and the temporary browser tab was closed afterward.
 - T4 browser limitation: protected Today, Profile, message dialog, and Statistics routes could not be opened without an authenticated test session. Their mobile behavior is supported by source, CSSOM, component tests, independent verification, and the verified 320px car-footprint arithmetic, but not by authenticated browser screenshots. Device-emulation screenshots were unreliable in this Orca runtime, so only stable 320×800 viewport captures were accepted as visual evidence.
-- Final tracked diff: 703 authored changed lines across 25 files; the new tracker contains 107 lines. No commit, push, PR, merge, or deployment was performed.
+- Final tracked implementation diff: 703 authored changed lines across 25 files; the tracker was committed with slice 3.
+- Work-unit commits: `f5cc3a3` (avatar variety), `8f13a6d` (carpool/mobile foundation), and `94c0e41` (application surfaces and tracker). No PR, merge, or deployment was performed.
 
 ## Next step
 
-Create the three stacked-to-main work-unit commits and branches, record their identities here, then push the branches without opening or merging PRs.
+Push `fix/mobile-avatar-visuals-01-avatars`, `fix/mobile-avatar-visuals-02-carpool`, and `fix/mobile-avatar-visuals` to origin without opening or merging PRs.
