@@ -66,6 +66,9 @@ describe('ProfileDrawer', () => {
 
     expect((input.element as HTMLInputElement).value).toBe('Anna')
     expect(document.activeElement).toBe(input.element)
+    expect(wrapper.get('.profile-drawer__panel').attributes('role')).toBe('dialog')
+    expect(wrapper.get('.profile-drawer__actions').text()).toContain('Salva')
+    expect(wrapper.get('.profile-drawer__actions').text()).toContain('Annulla')
   })
 
   it('shows a duplicate-name error and keeps the drawer open', async () => {

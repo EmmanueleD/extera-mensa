@@ -34,13 +34,13 @@ async function changeRange(next: StatisticsRange) {
 </script>
 
 <template>
-  <section class="mx-auto w-full max-w-3xl space-y-6 px-5 py-10">
+  <section class="statistics-page mx-auto w-full max-w-3xl space-y-6 px-5 py-10">
     <header>
       <p class="text-sm font-bold uppercase tracking-[0.18em] text-secondary">Andamento</p>
       <h1 class="text-3xl font-black">Statistiche</h1>
     </header>
 
-    <div class="join" role="group" aria-label="Intervallo temporale">
+    <div class="statistics-range join" role="group" aria-label="Intervallo temporale">
       <button
         v-for="option in STATISTICS_RANGE_OPTIONS"
         :key="option.value"

@@ -15,15 +15,15 @@ async function logout() {
 
 <template>
   <header
-    class="navbar sticky top-0 z-10 border-b border-base-300 bg-base-100/90 px-4 backdrop-blur"
+    class="app-topbar navbar sticky top-0 z-10 border-b border-base-300 bg-base-100/90 px-4 backdrop-blur"
   >
-    <div class="flex-1">
+    <div class="app-topbar__brand flex-1">
       <RouterLink class="text-lg font-black tracking-tight" to="/today">Extera Mensa</RouterLink>
     </div>
-    <nav aria-label="Navigazione principale" class="flex gap-1">
+    <nav aria-label="Navigazione principale" class="app-topbar__nav flex gap-1">
       <button
         v-if="today.answered.value"
-        class="btn btn-ghost btn-sm"
+        class="app-topbar__response btn btn-ghost btn-sm"
         type="button"
         @click="today.startEditing"
       >

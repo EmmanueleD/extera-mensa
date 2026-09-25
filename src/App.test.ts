@@ -74,4 +74,17 @@ describe('application shell', () => {
     expect(wrapper.find('[role="group"][aria-label="Intervallo temporale"]').exists()).toBe(true)
     expect(wrapper.text()).toContain('Andamento')
   })
+
+  it('keeps every shell action in the semantic responsive navigation', async () => {
+    const wrapper = await mountAt('/today')
+    await flushPromises()
+
+    const topbar = wrapper.get('.app-topbar')
+    const navigation = topbar.get('.app-topbar__nav')
+    expect(navigation.attributes('aria-label')).toBe('Navigazione principale')
+    expect(navigation.get('a[href="/today"]').text()).toBe('Oggi')
+    expect(navigation.get('a[href="/statistics"]').text()).toBe('Statistiche')
+    expect(navigation.text()).toContain('Profilo')
+    expect(navigation.text()).toContain('Esci')
+  })
 })

@@ -66,7 +66,7 @@ onUnmounted(realtime.stop)
 </script>
 
 <template>
-  <section class="grid min-h-[calc(100svh-4rem)] place-items-center px-5 py-12">
+  <section class="today-page grid min-h-[calc(100svh-4rem)] place-items-center px-5 py-12">
     <div
       v-if="today.loading.value && !today.state.value"
       class="loading loading-dots loading-lg"
@@ -83,7 +83,7 @@ onUnmounted(realtime.stop)
     />
     <form
       v-else
-      class="organic-card w-full max-w-md space-y-6 text-center"
+      class="today-form organic-card w-full max-w-md space-y-6 text-center"
       @submit.prevent="today.save(true, transportMode, carCapacity)"
     >
       <div>

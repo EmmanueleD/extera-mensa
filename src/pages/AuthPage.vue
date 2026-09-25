@@ -44,8 +44,8 @@ async function submit() {
 </script>
 
 <template>
-  <main class="grid min-h-svh place-items-center px-5 py-12">
-    <section class="organic-card w-full max-w-md">
+  <main class="auth-page grid min-h-svh place-items-center px-5 py-12">
+    <section class="auth-card organic-card w-full max-w-md">
       <h1 class="text-3xl font-black">{{ content.title }}</h1>
       <form class="mt-6 space-y-4" @submit.prevent="submit">
         <label class="form-control block">

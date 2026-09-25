@@ -67,7 +67,7 @@ const chartOptions = computed<ChartOptions<'line'>>(() => ({
 </script>
 
 <template>
-  <div class="h-72 w-full" aria-hidden="true" data-testid="statistics-chart">
+  <div class="statistics-chart h-72 w-full" aria-hidden="true" data-testid="statistics-chart">
     <Line :data="chartData" :options="chartOptions" />
   </div>
 </template>

@@ -89,7 +89,7 @@ watch(
 </script>
 
 <template>
-  <div v-if="open" class="fixed inset-0 z-50 grid place-items-center p-4">
+  <div v-if="open" class="message-editor fixed inset-0 z-50 grid place-items-center p-4">
     <button
       class="absolute inset-0 cursor-default bg-neutral/40"
       type="button"
@@ -101,7 +101,7 @@ watch(
       role="dialog"
       aria-modal="true"
       aria-labelledby="message-editor-title"
-      class="organic-card relative z-10 w-full max-w-md shadow-2xl"
+      class="message-editor__panel organic-card relative z-10 w-full max-w-md shadow-2xl"
       @keydown.esc.stop.prevent="close"
     >
       <header class="flex items-center justify-between gap-4">
@@ -136,7 +136,7 @@ watch(
             <label
               v-for="color in MESSAGE_TEXT_PALETTE"
               :key="color"
-              class="label cursor-pointer justify-start gap-2 rounded-box border border-base-300 px-3"
+              class="message-editor__color-option label cursor-pointer justify-start gap-2 rounded-box border border-base-300 px-3"
             >
               <input
                 v-model="draftColor"
@@ -156,7 +156,7 @@ watch(
           {{ profile.error.value }}
         </p>
 
-        <div class="flex flex-wrap justify-end gap-2">
+        <div class="message-editor__actions flex flex-wrap justify-end gap-2">
           <button
             class="btn btn-ghost"
             type="button"

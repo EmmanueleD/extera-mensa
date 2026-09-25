@@ -16,7 +16,7 @@ function countLabel(count: number) {
 </script>
 
 <template>
-  <div class="space-y-3">
+  <div class="statistics-detail space-y-3">
     <label class="form-control block">
       <span class="label-text font-bold">Data da mostrare</span>
       <select
@@ -38,14 +38,14 @@ function countLabel(count: number) {
           <li
             v-for="participant in selectedPoint.participants"
             :key="participant.id"
-            class="flex items-center gap-3"
+            class="statistics-detail__participant flex min-w-0 items-center gap-3"
           >
             <OrganicAvatar
               :seed="participant.avatar_seed"
               :color="participant.avatar_color"
               :size="36"
             />
-            <span class="font-bold">{{ participant.display_name }}</span>
+            <span class="min-w-0 break-words font-bold">{{ participant.display_name }}</span>
           </li>
         </ul>
         <p v-else class="mt-2 text-base-content/70">Nessuno è andato in mensa in questa data.</p>

@@ -35,6 +35,15 @@ beforeEach(() => {
 })
 
 describe('AuthPage', () => {
+  it('uses the responsive auth surface without changing form semantics', async () => {
+    const { wrapper } = await mountPage('register')
+
+    expect(wrapper.get('main').classes()).toContain('auth-page')
+    expect(wrapper.get('section').classes()).toContain('auth-card')
+    expect(wrapper.findAll('input')).toHaveLength(3)
+    expect(wrapper.get('button').text()).toBe('Registrati')
+  })
+
   it('registers with username and display name, then goes to today', async () => {
     auth.signUp.mockResolvedValue(true)
     const { wrapper, router } = await mountPage('register')
