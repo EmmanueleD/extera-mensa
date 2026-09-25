@@ -40,10 +40,13 @@ const seatGrid = computed(() => ({
 </script>
 
 <template>
-  <li class="flex max-w-full flex-col items-center gap-3" data-testid="carpool-car">
+  <li
+    class="carpool-car-item flex max-w-full flex-col items-center gap-3"
+    data-testid="carpool-car"
+  >
     <div role="group" :aria-label="label" class="carpool-car" :style="paint">
       <div class="carpool-car__cabin">
-        <div class="grid gap-1.5" :style="seatGrid">
+        <div class="carpool-car__seat-grid grid gap-1.5" :style="seatGrid">
           <div
             v-for="(person, index) in occupants"
             :key="person.id"
@@ -94,10 +97,10 @@ const seatGrid = computed(() => ({
                 {{ person.display_name }}
               </span>
             </div>
-            <!-- Steering wheel marks the driver seat. -->
+            <!-- Steering wheel marks the driver seat without covering the participant initial. -->
             <svg
               v-if="index === 0"
-              class="absolute -right-1 -bottom-1 size-3.5 text-base-content"
+              class="carpool-steering-wheel text-base-content"
               viewBox="0 0 16 16"
               aria-hidden="true"
             >
