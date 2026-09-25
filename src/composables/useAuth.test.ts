@@ -57,4 +57,32 @@ describe('useAuth', () => {
       password: 'pw-lunga-2',
     })
   })
+
+  it('explains that an unconfirmed account needs administrator enablement', async () => {
+    supabaseAuth.signInWithPassword.mockResolvedValue({
+      error: { code: 'email_not_confirmed', message: 'Email not confirmed' },
+    })
+    const auth = useAuth()
+
+    expect(await auth.signIn('anna', 'pw-lunga-1')).toBe(false)
+    expect(auth.error.value).toBe('L’account esiste, ma deve essere abilitato dall’amministratore.')
+  })
+
+  it('keeps invalid credentials generic for other provider failures', async () => {
+    supabaseAuth.signInWithPassword.mockResolvedValue({
+      error: { code: 'invalid_credentials', message: 'Invalid login credentials' },
+    })
+    const auth = useAuth()
+
+    expect(await auth.signIn('anna', 'pw-lunga-1')).toBe(false)
+    expect(auth.error.value).toBe('Credenziali non valide.')
+  })
+
+  it('reports connection failure when sign-in throws', async () => {
+    supabaseAuth.signInWithPassword.mockRejectedValue(new TypeError('Failed to fetch'))
+    const auth = useAuth()
+
+    expect(await auth.signIn('anna', 'pw-lunga-1')).toBe(false)
+    expect(auth.error.value).toBe('Connessione non disponibile. Riprova.')
+  })
 })

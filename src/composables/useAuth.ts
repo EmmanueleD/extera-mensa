@@ -10,17 +10,24 @@ const loading = ref(false)
 const error = ref<string | null>(null)
 let initialization: Promise<void> | undefined
 
+type ProviderAuthError = { code?: string; message: string }
+type ErrorMessage = string | ((providerError: ProviderAuthError) => string)
+
 function message(fallback: string) {
   error.value = fallback
   return false
 }
 
-async function run(action: () => Promise<{ error: { message: string } | null }>, fallback: string) {
+async function run(
+  action: () => Promise<{ error: ProviderAuthError | null }>,
+  fallback: ErrorMessage,
+) {
   loading.value = true
   error.value = null
   try {
     const result = await action()
-    return result.error ? message(fallback) : true
+    if (!result.error) return true
+    return message(typeof fallback === 'function' ? fallback(result.error) : fallback)
   } catch {
     return message('Connessione non disponibile. Riprova.')
   } finally {
@@ -83,7 +90,10 @@ export function useAuth() {
     run(
       () =>
         supabase.auth.signInWithPassword({ email: loginIdentifierToEmail(identifier), password }),
-      'Credenziali non valide.',
+      (providerError) =>
+        providerError.code === 'email_not_confirmed'
+          ? 'L’account esiste, ma deve essere abilitato dall’amministratore.'
+          : 'Credenziali non valide.',
     )
 
   const signOut = () => run(() => supabase.auth.signOut(), 'Non è stato possibile uscire.')

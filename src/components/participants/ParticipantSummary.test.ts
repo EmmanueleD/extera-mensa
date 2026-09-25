@@ -73,6 +73,17 @@ describe('ParticipantSummary', () => {
     expect(wrapper.find('.organic-card').exists()).toBe(false)
   })
 
+  it('renders the OrganicAvatar SVG inside the actual driver seat control', () => {
+    const wrapper = mount(ParticipantSummary, {
+      props: { participants, missingSeats: 0 },
+    })
+
+    const driverSeat = wrapper.get('[data-seat="driver"]')
+    const driverControl = driverSeat.get('button.participant-avatar-control')
+    expect(driverControl.attributes('aria-label')).toBe('Anna, alla guida')
+    expect(driverControl.find('.participant-avatar-control__avatar > svg').exists()).toBe(true)
+  })
+
   it('fills seats in arrival order: one car of five with two riders', () => {
     const wrapper = mount(ParticipantSummary, {
       props: {
