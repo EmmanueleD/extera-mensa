@@ -25,8 +25,8 @@ Give each newly registered profile a random curated avatar color, keep car avata
 - [x] T1 Database default: add a migration and pgTAP evidence for random curated colors on future profiles.
 - [x] T2 Stable layout: remove message-dependent car displacement and add a regression covering stable avatar positioning.
 - [x] T3 Owner-only compact editor: propagate current-user identity, make only the owner avatar an accessible edit control, and add message text/color editing, remove action, focus restoration, and immediate participant refresh.
-- [ ] T4 Verification: run focused database/component checks and aggregate verification.
-- [ ] T5 Delivery evidence: record commit identities; PR, push, and merge remain user decisions.
+- [x] T4 Verification: run focused database/component checks and aggregate verification.
+- [x] T5 Delivery evidence: record commit identities; PR, push, and merge remain user decisions.
 
 ## Acceptance criteria
 
@@ -46,4 +46,7 @@ Stacked branch based on `fix/production-reliability`. The base repair branch rem
 
 - T1 commit: `0cc38d6` (`feat(profile): randomize initial avatar colors`). Database verification: `npm run db:start`; `npm exec -- supabase migration up --local`; `npm run test:db` (64/64 assertions passed, including 17/17 profile assertions); `npm run db:stop`.
 - T2 commit: `b1cfdc5` (`fix(carpool): keep avatars stable with messages`). Verification: focused ParticipantSummary suite 11/11, targeted ESLint passed, Prettier passed, and typecheck passed. Independent re-verification confirmed no unrelated steering-wheel or owner-edit changes.
-- T3 editor commit: `9c1e52a` (`feat(profile): add compact message editor`). Integration verification: 25/25 focused tests passed plus targeted ESLint, Prettier, and typecheck. Independent re-verification confirmed owner-only interaction, nested presence semantics, stale-error reset, partial updates, Save/Remove refresh, focus restoration, and unchanged ProfileDrawer.
+- T3 editor commit: `9c1e52a` (`feat(profile): add compact message editor`).
+- T3 integration commit: `190f61a` (`feat(today): edit messages from own avatar`). Integration verification: 25/25 focused tests passed plus targeted ESLint, Prettier, and typecheck. Independent re-verification confirmed owner-only interaction, nested presence semantics, stale-error reset, partial updates, Save/Remove refresh, focus restoration, and unchanged ProfileDrawer.
+- T4 aggregate verification: `npm run verify` passed (14/14 files, 95/95 unit tests, production build with 112 modules). Database lifecycle passed with no reset (4/4 files, 64/64 assertions). Manual browser/responsive visual verification was not run.
+- Delivery remains local on `feat/avatar-message-editor`; push, PR, and merge were not performed.
