@@ -3,7 +3,18 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import TodayPage from './TodayPage.vue'
 
 const rpc = vi.hoisted(() => vi.fn())
+const updateProfile = vi.hoisted(() => vi.fn())
 vi.mock('../lib/supabase', () => ({ getSupabase: () => ({ rpc }) }))
+vi.mock('../composables/useAuth', () => ({
+  useAuth: () => ({ user: { value: { id: 'owner-1' } } }),
+}))
+vi.mock('../composables/useProfile', () => ({
+  useProfile: () => ({
+    saving: { value: false },
+    error: { value: null },
+    update: updateProfile,
+  }),
+}))
 vi.mock('../composables/useRealtimeSummary', () => ({
   useRealtimeSummary: () => ({
     onlineUserIds: { value: new Set<string>() },
@@ -23,9 +34,30 @@ const unanswered = {
   missing_seats: 0,
 }
 
+const answered = {
+  ...unanswered,
+  own_declaration: { attending: true, transport_mode: 'needs_ride', car_capacity: null },
+  participants: [
+    {
+      id: 'owner-1',
+      display_name: 'Anna',
+      message: 'Messaggio attuale',
+      avatar_seed: 'seed-anna',
+      avatar_color: 'coral',
+      message_text_color: 'ink',
+      transport_mode: 'needs_ride',
+      car_capacity: null,
+      declared_at: '2026-09-24T09:00:00Z',
+    },
+  ],
+  ride_demand: 1,
+  missing_seats: 1,
+}
+
 beforeEach(() => {
   vi.clearAllMocks()
   rpc.mockResolvedValue({ data: unanswered, error: null })
+  updateProfile.mockResolvedValue(true)
 })
 
 describe('TodayPage', () => {
@@ -100,6 +132,30 @@ describe('TodayPage', () => {
     expect(rpc).toHaveBeenCalledWith('set_today_declaration', {
       p_attending: false,
     })
+  })
+
+  it.each([
+    ['save', 'submit'],
+    ['remove', 'remove'],
+  ])('refreshes today immediately after a successful message %s', async (_case, action) => {
+    rpc.mockResolvedValue({ data: answered, error: null })
+    const wrapper = mount(TodayPage)
+    await flushPromises()
+
+    await wrapper.get('[aria-label^="Modifica il tuo messaggio"]').trigger('click')
+    expect(wrapper.find('[role="dialog"]').exists()).toBe(true)
+
+    if (action === 'submit') {
+      await wrapper.get('textarea').setValue('Aggiornato')
+      await wrapper.get('form').trigger('submit')
+    } else {
+      await wrapper.get('[data-action="remove-message"]').trigger('click')
+    }
+    await flushPromises()
+
+    expect(updateProfile).toHaveBeenCalledTimes(1)
+    expect(rpc).toHaveBeenCalledTimes(2)
+    expect(wrapper.find('[role="dialog"]').exists()).toBe(false)
   })
 
   it('preserves the selected mode after a connection failure', async () => {

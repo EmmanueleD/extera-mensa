@@ -12,12 +12,15 @@ const props = withDefaults(
     missingSeats: number
     onlineUserIds?: Set<string>
     connectionStatus?: RealtimeStatus
+    ownerId?: string | null
   }>(),
   {
     onlineUserIds: () => new Set<string>(),
     connectionStatus: 'disconnected',
+    ownerId: null,
   },
 )
+const emit = defineEmits<{ 'edit-message': [participant: Participant] }>()
 
 const participantLabel = computed(() =>
   props.participants.length === 1 ? '1 partecipante' : `${props.participants.length} partecipanti`,
@@ -67,6 +70,8 @@ const seating = computed(() => assignSeats(props.participants))
           :key="car.driver.id"
           :car="car"
           :online-user-ids="onlineUserIds"
+          :owner-id="ownerId"
+          @edit-message="emit('edit-message', $event)"
         />
       </ul>
 
@@ -83,6 +88,8 @@ const seating = computed(() => assignSeats(props.participants))
             :key="participant.id"
             :participant="participant"
             :online="onlineUserIds.has(participant.id)"
+            :owner-id="ownerId"
+            @edit-message="emit('edit-message', $event)"
           />
         </ul>
       </section>
