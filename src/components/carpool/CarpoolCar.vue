@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import OrganicAvatar from '../avatar/OrganicAvatar.vue'
 import PresenceDot from './PresenceDot.vue'
 import type { Participant } from '../../composables/useToday'
@@ -7,9 +7,14 @@ import { AVATAR_FILL_TOKENS, createAvatarRecipe } from '../../lib/avatar/avatar'
 import { carLabel, floatDelay, type CarAssignment } from '../../lib/carpool'
 import { messageTextClass } from '../../lib/profile'
 
-const props = withDefaults(defineProps<{ car: CarAssignment; onlineUserIds?: Set<string> }>(), {
-  onlineUserIds: () => new Set<string>(),
-})
+const props = withDefaults(
+  defineProps<{ car: CarAssignment; onlineUserIds?: Set<string>; ownerId?: string | null }>(),
+  {
+    onlineUserIds: () => new Set<string>(),
+    ownerId: null,
+  },
+)
+const emit = defineEmits<{ 'edit-message': [participant: Participant] }>()
 
 /** Wider cars wrap into a second window row, so big capacities read as a van. */
 const SEATS_PER_ROW = 5
@@ -17,20 +22,12 @@ const SEATS_PER_ROW = 5
 const occupants = computed<Participant[]>(() => [props.car.driver, ...props.car.passengers])
 const emptySeats = computed(() => Array.from({ length: props.car.emptySeats }, (_, i) => i))
 const label = computed(() => carLabel(props.car))
-const expandedParticipantIds = ref(new Set<string>())
 
 const participantInitial = (person: Participant) =>
   Array.from(person.display_name.trim())[0]?.toLocaleUpperCase('it-IT') ?? '?'
 
 const participantLabel = (person: Participant, index: number) =>
   index === 0 ? `${person.display_name}, alla guida` : person.display_name
-
-const toggleParticipant = (id: string) => {
-  const next = new Set(expandedParticipantIds.value)
-  if (next.has(id)) next.delete(id)
-  else next.add(id)
-  expandedParticipantIds.value = next
-}
 
 // The car wears its driver's avatar color.
 const paint = computed(() => {
@@ -63,14 +60,11 @@ const seatGrid = computed(() => ({
               <span :class="messageTextClass(person.message_text_color)">{{ person.message }}</span>
             </p>
             <button
+              v-if="person.id === ownerId"
               type="button"
               class="participant-avatar-control"
-              :class="{
-                'participant-avatar-control--expanded': expandedParticipantIds.has(person.id),
-              }"
-              :aria-label="participantLabel(person, index)"
-              :aria-expanded="expandedParticipantIds.has(person.id)"
-              @click="toggleParticipant(person.id)"
+              :aria-label="`Modifica il tuo messaggio, ${participantLabel(person, index)}`"
+              @click="emit('edit-message', person)"
             >
               <span class="participant-avatar-control__avatar">
                 <OrganicAvatar :seed="person.avatar_seed" :color="person.avatar_color" :size="34" />
@@ -83,6 +77,23 @@ const seatGrid = computed(() => ({
                 {{ person.display_name }}
               </span>
             </button>
+            <div
+              v-else
+              class="participant-avatar-control"
+              role="group"
+              :aria-label="participantLabel(person, index)"
+            >
+              <span class="participant-avatar-control__avatar">
+                <OrganicAvatar :seed="person.avatar_seed" :color="person.avatar_color" :size="34" />
+              </span>
+              <span class="participant-avatar-control__initial" aria-hidden="true">
+                {{ participantInitial(person) }}
+              </span>
+              <PresenceDot :online="onlineUserIds.has(person.id)" />
+              <span class="participant-avatar-control__name" aria-hidden="true">
+                {{ person.display_name }}
+              </span>
+            </div>
             <!-- Steering wheel marks the driver seat. -->
             <svg
               v-if="index === 0"

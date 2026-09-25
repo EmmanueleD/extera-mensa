@@ -1,16 +1,20 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 import ParticipantSummary from '../components/participants/ParticipantSummary.vue'
+import MessageEditorDialog from '../components/profile/MessageEditorDialog.vue'
+import { useAuth } from '../composables/useAuth'
 import { useRealtimeSummary } from '../composables/useRealtimeSummary'
-import { useToday } from '../composables/useToday'
+import { useToday, type Participant } from '../composables/useToday'
 import type { Database } from '../types/database'
 
 type TransportMode = Database['public']['Enums']['transport_mode']
 // The form only offers these two modes; legacy 'autonomous' stays valid in the DB.
 type SelectableMode = Extract<TransportMode, 'needs_ride' | 'offers_car'>
+const auth = useAuth()
 const today = useToday()
 const realtime = useRealtimeSummary()
 const attending = ref<boolean | null>(null)
+const messageParticipant = ref<Participant | null>(null)
 const transportMode = ref<SelectableMode | null>(null)
 const carCapacity = ref(5)
 const transportOptions: Array<{ value: SelectableMode; label: string }> = [
@@ -39,6 +43,19 @@ function answerYes() {
   )
 }
 
+function openMessageEditor(participant: Participant) {
+  messageParticipant.value = participant
+}
+
+function closeMessageEditor() {
+  messageParticipant.value = null
+}
+
+async function refreshAfterMessageUpdate() {
+  closeMessageEditor()
+  await today.load()
+}
+
 watch(() => today.editing.value, resetForm)
 onMounted(async () => {
   await today.load()
@@ -51,7 +68,7 @@ onUnmounted(realtime.stop)
 <template>
   <section class="grid min-h-[calc(100svh-4rem)] place-items-center px-5 py-12">
     <div
-      v-if="today.loading.value"
+      v-if="today.loading.value && !today.state.value"
       class="loading loading-dots loading-lg"
       aria-label="Caricamento"
     ></div>
@@ -61,6 +78,8 @@ onUnmounted(realtime.stop)
       :missing-seats="today.state.value.missing_seats"
       :online-user-ids="realtime.onlineUserIds.value"
       :connection-status="realtime.status.value"
+      :owner-id="auth.user.value?.id ?? null"
+      @edit-message="openMessageEditor"
     />
     <form
       v-else
@@ -124,5 +143,14 @@ onUnmounted(realtime.stop)
         {{ today.error.value }}
       </p>
     </form>
+
+    <MessageEditorDialog
+      :open="Boolean(messageParticipant)"
+      :message="messageParticipant?.message ?? null"
+      :message-text-color="messageParticipant?.message_text_color ?? 'ink'"
+      @close="closeMessageEditor"
+      @saved="refreshAfterMessageUpdate"
+      @removed="refreshAfterMessageUpdate"
+    />
   </section>
 </template>

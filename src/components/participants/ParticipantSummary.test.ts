@@ -39,16 +39,23 @@ function rider(id: string, declared_at: string, message: string | null = null) {
 }
 
 describe('ParticipantSummary', () => {
-  it('keeps each message and identity control in the matching occupied seat', async () => {
+  it('makes only the owner driver interactive and propagates the edit event', async () => {
     const wrapper = mount(ParticipantSummary, {
-      props: { participants, missingSeats: 0, onlineUserIds: new Set(['anna']) },
+      props: {
+        participants,
+        missingSeats: 0,
+        onlineUserIds: new Set(['anna']),
+        ownerId: 'anna',
+      },
     })
 
     expect(wrapper.text()).toContain('2 partecipanti')
     expect(wrapper.find('[aria-label="Online"]').exists()).toBe(true)
     expect(wrapper.find('[aria-label="Offline"]').exists()).toBe(true)
     const car = wrapper.get('[aria-label="Auto di Anna: 1 passeggero, 3 posti liberi"]')
-    expect(car.find('[aria-label="Anna, alla guida"]').exists()).toBe(true)
+    expect(car.find('[aria-label="Modifica il tuo messaggio, Anna, alla guida"]').exists()).toBe(
+      true,
+    )
     expect(car.find('[aria-label="Luca"]').exists()).toBe(true)
     expect(car.findAll('[aria-label="Posto libero"]')).toHaveLength(3)
     const occupiedSeats = wrapper.findAll('[data-testid="carpool-occupant"]')
@@ -63,11 +70,16 @@ describe('ParticipantSummary', () => {
     expect(occupiedSeats[1].find('[aria-label="Offline"]').exists()).toBe(true)
 
     const driverControl = occupiedSeats[0].get('button')
-    expect(driverControl.attributes('aria-label')).toBe('Anna, alla guida')
-    expect(driverControl.attributes('aria-expanded')).toBe('false')
+    expect(driverControl.attributes('aria-label')).toBe(
+      'Modifica il tuo messaggio, Anna, alla guida',
+    )
+    expect(occupiedSeats[1].find('button').exists()).toBe(false)
+    const passengerIdentity = occupiedSeats[1].get('.participant-avatar-control[role="group"]')
+    expect(passengerIdentity.attributes('aria-label')).toBe('Luca')
+    expect(passengerIdentity.attributes('tabindex')).toBeUndefined()
+    expect(passengerIdentity.get('[aria-label="Offline"]').attributes('role')).toBe('img')
     await driverControl.trigger('click')
-    expect(driverControl.attributes('aria-expanded')).toBe('true')
-    expect(occupiedSeats[0].get('.participant-avatar-control__name').text()).toBe('Anna')
+    expect(wrapper.emitted('edit-message')).toEqual([[participants[0]]])
     expect(wrapper.find('[data-testid="waiting-area"]').exists()).toBe(false)
     expect(wrapper.text()).not.toMatch(/Auto · |Cerca un passaggio|Arriva autonomamente/)
     expect(wrapper.find('.organic-card').exists()).toBe(false)
@@ -92,15 +104,23 @@ describe('ParticipantSummary', () => {
     )
   })
 
-  it('renders the OrganicAvatar SVG inside the actual driver seat control', () => {
+  it('makes only an owner passenger interactive', async () => {
     const wrapper = mount(ParticipantSummary, {
-      props: { participants, missingSeats: 0 },
+      props: { participants, missingSeats: 0, ownerId: 'luca' },
     })
 
     const driverSeat = wrapper.get('[data-seat="driver"]')
-    const driverControl = driverSeat.get('button.participant-avatar-control')
-    expect(driverControl.attributes('aria-label')).toBe('Anna, alla guida')
-    expect(driverControl.find('.participant-avatar-control__avatar > svg').exists()).toBe(true)
+    expect(driverSeat.find('button').exists()).toBe(false)
+    const driverIdentity = driverSeat.get('.participant-avatar-control[role="group"]')
+    expect(driverIdentity.attributes('aria-label')).toBe('Anna, alla guida')
+    expect(driverIdentity.attributes('tabindex')).toBeUndefined()
+    expect(driverIdentity.get('[aria-label="Offline"]').attributes('role')).toBe('img')
+    expect(driverSeat.find('.participant-avatar-control__avatar > svg').exists()).toBe(true)
+
+    const passengerButton = wrapper.get('[data-seat="passenger"] button')
+    expect(passengerButton.attributes('aria-label')).toBe('Modifica il tuo messaggio, Luca')
+    await passengerButton.trigger('click')
+    expect(wrapper.emitted('edit-message')).toEqual([[participants[1]]])
   })
 
   it('fills seats in arrival order: one car of five with two riders', () => {
@@ -121,17 +141,18 @@ describe('ParticipantSummary', () => {
     )
     expect(car.findAll('[data-seat="driver"]')).toHaveLength(1)
     const passengerSeats = car.findAll('[data-seat="passenger"]')
-    expect(passengerSeats.map((seat) => seat.get('button').attributes('aria-label'))).toEqual([
-      'Luca',
-      'Sara',
-    ])
+    expect(
+      passengerSeats.map((seat) =>
+        seat.get('.participant-avatar-control[role="group"]').attributes('aria-label'),
+      ),
+    ).toEqual(['Luca', 'Sara'])
     const lucaBubble = passengerSeats[0].get('.speech-bubble')
     expect(lucaBubble.text()).toBe('Ci sono')
     expect(lucaBubble.classes()).toContain('carpool-seat-bubble--lane-1')
     expect(car.findAll('[data-seat="empty"]')).toHaveLength(2)
   })
 
-  it('puts riders without a seat in the waiting area with their bubble', async () => {
+  it('makes a waiting owner interactive while preserving the waiting figure', async () => {
     const smallCar = { ...participants[0], car_capacity: 2 }
     const wrapper = mount(ParticipantSummary, {
       props: {
@@ -141,6 +162,7 @@ describe('ParticipantSummary', () => {
           rider('sara', '2026-09-24T09:10:00Z', 'Chi mi porta?'),
         ],
         missingSeats: 1,
+        ownerId: 'sara',
       },
     })
 
@@ -159,11 +181,9 @@ describe('ParticipantSummary', () => {
     expect(figures[0].find('.carpool-float').exists()).toBe(true)
     expect(figures[0].get('.participant-avatar-control__initial').text()).toBe('S')
     const control = figures[0].get('button')
-    expect(control.attributes('aria-label')).toBe('Sara')
-    expect(control.attributes('aria-expanded')).toBe('false')
+    expect(control.attributes('aria-label')).toBe('Modifica il tuo messaggio, Sara')
     await control.trigger('click')
-    expect(control.attributes('aria-expanded')).toBe('true')
-    expect(figures[0].get('.participant-avatar-control__name').text()).toBe('Sara')
+    expect(wrapper.emitted('edit-message')).toEqual([[expect.objectContaining({ id: 'sara' })]])
   })
 
   it('shows a lone rider outside when no car is available', () => {
@@ -172,7 +192,13 @@ describe('ParticipantSummary', () => {
     })
 
     expect(wrapper.find('[data-testid="carpool-car"]').exists()).toBe(false)
-    expect(wrapper.get('[data-testid="waiting-area"]').text()).toContain('Luca')
+    const waiting = wrapper.get('[data-testid="waiting-area"]')
+    expect(waiting.text()).toContain('Luca')
+    expect(waiting.find('button').exists()).toBe(false)
+    const identity = waiting.get('.participant-avatar-control[role="group"]')
+    expect(identity.attributes('aria-label')).toBe('Luca')
+    expect(identity.attributes('tabindex')).toBeUndefined()
+    expect(identity.get('[aria-label="Offline"]').attributes('role')).toBe('img')
     expect(wrapper.get('[role="status"]').text()).toContain('Nessuna auto disponibile')
   })
 
