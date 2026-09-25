@@ -217,8 +217,11 @@ body {
   left: 50%;
   width: max-content;
   max-width: min(9rem, 42vw);
+  max-height: 2.4em;
   translate: -50% 0;
+  display: -webkit-box;
   visibility: hidden;
+  overflow: hidden;
   border-radius: 0.55rem;
   background: var(--color-neutral);
   padding: 0.2rem 0.45rem;
@@ -227,8 +230,11 @@ body {
   font-weight: 800;
   line-height: 1.2;
   overflow-wrap: anywhere;
+  text-overflow: ellipsis;
   opacity: 0;
   pointer-events: none;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
   transition: opacity 120ms ease;
 }
 
@@ -251,19 +257,6 @@ body {
 
 .carpool-seat-bubble--lane-1 {
   bottom: calc(100% + 3.45rem);
-}
-
-/* Keep the elevated bubble's normal tail, then bridge the lane gap back to its seat. */
-.carpool-seat-bubble--lane-1::before {
-  content: '';
-  position: absolute;
-  z-index: -1;
-  top: 100%;
-  left: 50%;
-  width: 2px;
-  height: 3rem;
-  background: color-mix(in oklab, var(--color-base-content) 35%, transparent);
-  translate: -50% 0;
 }
 
 .speech-bubble {
@@ -331,6 +324,16 @@ body {
   background: color-mix(in oklab, var(--color-base-100) 82%, var(--color-info));
 }
 
+.carpool-steering-wheel {
+  position: absolute;
+  z-index: 1;
+  bottom: 0.1rem;
+  left: 0.1rem;
+  width: 1.25rem;
+  height: 1.25rem;
+  pointer-events: none;
+}
+
 .carpool-car__seat--empty {
   background: color-mix(in oklab, var(--color-base-100) 55%, transparent);
 }
@@ -377,6 +380,186 @@ body {
   border: 0.45rem solid var(--color-neutral);
   border-radius: 9999px;
   background: var(--color-base-300);
+}
+
+@media (max-width: 40rem) {
+  .organic-card {
+    padding: 1.25rem;
+  }
+
+  .app-topbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.25rem;
+    padding: 0.5rem;
+  }
+
+  .app-topbar__brand {
+    min-width: 0;
+    padding-inline: 0.5rem;
+  }
+
+  .app-topbar__nav {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    width: 100%;
+  }
+
+  .app-topbar__nav .btn {
+    min-width: 0;
+    min-height: 2.75rem;
+    height: auto;
+    padding: 0.35rem 0.25rem;
+    white-space: normal;
+  }
+
+  .app-topbar__response {
+    grid-column: 1 / -1;
+  }
+
+  .auth-page,
+  .today-page,
+  .statistics-page {
+    padding-inline: 1rem;
+  }
+
+  .auth-page,
+  .today-page {
+    padding-block: 1.5rem;
+  }
+
+  .auth-card,
+  .today-form {
+    min-width: 0;
+  }
+
+  .auth-card .btn,
+  .today-form .btn,
+  .statistics-range .btn,
+  .profile-drawer__panel button,
+  .message-editor__panel button {
+    min-height: 2.75rem;
+  }
+
+  .participant-summary__header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .participant-summary__cars,
+  .participant-summary__waiting {
+    width: 100%;
+  }
+
+  .carpool-car-item {
+    width: 100%;
+  }
+
+  .carpool-car__cabin {
+    padding-bottom: 2.6rem;
+  }
+
+  .carpool-car__seat-grid {
+    row-gap: 2.75rem;
+  }
+
+  .carpool-occupied-seat > .participant-avatar-control {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+
+  .participant-avatar-control__name {
+    top: calc(100% + 0.25rem);
+    width: 2.5rem;
+    max-width: 2.5rem;
+    visibility: visible;
+    padding-inline: 0.2rem;
+    font-size: 0.6rem;
+    opacity: 1;
+  }
+
+  .participant-avatar-control--waiting .participant-avatar-control__name {
+    width: 7rem;
+    max-width: 7rem;
+  }
+
+  .participant-figure-item {
+    max-width: calc(50% - 0.5rem);
+    padding-bottom: 1.75rem;
+  }
+
+  .speech-bubble.carpool-seat-bubble {
+    max-width: min(5.5rem, 28vw);
+  }
+
+  .profile-drawer__panel {
+    max-width: 100%;
+    padding: 1rem;
+  }
+
+  .profile-drawer__avatar,
+  .profile-drawer__actions {
+    flex-wrap: wrap;
+  }
+
+  .profile-drawer__color-option,
+  .message-editor__color-option {
+    display: grid;
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    place-items: center;
+  }
+
+  .message-editor {
+    padding: 0.5rem;
+  }
+
+  .message-editor__panel {
+    max-height: calc(100dvh - 1rem);
+    overflow-y: auto;
+  }
+
+  .message-editor__actions > * {
+    flex: 1;
+  }
+
+  .statistics-range {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    width: 100%;
+  }
+
+  .statistics-range .btn {
+    min-width: 0;
+    padding-inline: 0.35rem;
+  }
+
+  .statistics-chart {
+    min-width: 0;
+    max-width: 100%;
+    height: 14rem;
+  }
+
+  .statistics-ranking__row {
+    gap: 0.5rem;
+    padding: 0.75rem;
+  }
+
+  .statistics-ranking__total {
+    white-space: nowrap;
+  }
+}
+
+@media (hover: none), (pointer: coarse) {
+  .carpool-occupied-seat > .participant-avatar-control {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+
+  .participant-avatar-control__name {
+    visibility: visible;
+    opacity: 1;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

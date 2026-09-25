@@ -50,6 +50,9 @@ describe('ParticipantSummary', () => {
     })
 
     expect(wrapper.text()).toContain('2 partecipanti')
+    expect(
+      wrapper.get('.participant-summary__cars').findAll('[data-testid="carpool-car"]'),
+    ).toHaveLength(1)
     expect(wrapper.find('[aria-label="Online"]').exists()).toBe(true)
     expect(wrapper.find('[aria-label="Offline"]').exists()).toBe(true)
     const car = wrapper.get('[aria-label="Auto di Anna: 1 passeggero, 3 posti liberi"]')
@@ -63,8 +66,11 @@ describe('ParticipantSummary', () => {
     expect(occupiedSeats[0].attributes('data-seat')).toBe('driver')
     expect(occupiedSeats[0].get('.speech-bubble').text()).toBe('Arrivo alle 12')
     expect(occupiedSeats[0].get('.participant-avatar-control__initial').text()).toBe('A')
+    const steeringWheel = occupiedSeats[0].get('.carpool-steering-wheel')
+    expect(steeringWheel.attributes('aria-hidden')).toBe('true')
     expect(occupiedSeats[0].find('[aria-label="Online"]').exists()).toBe(true)
     expect(occupiedSeats[1].attributes('data-seat')).toBe('passenger')
+    expect(occupiedSeats[1].find('.carpool-steering-wheel').exists()).toBe(false)
     expect(occupiedSeats[1].find('.speech-bubble').exists()).toBe(false)
     expect(occupiedSeats[1].get('.participant-avatar-control__initial').text()).toBe('L')
     expect(occupiedSeats[1].find('[aria-label="Offline"]').exists()).toBe(true)
@@ -170,6 +176,9 @@ describe('ParticipantSummary', () => {
     expect(waiting.text()).toContain('In attesa di un passaggio')
     const figures = waiting.findAll('[data-testid="participant-figure"]')
     expect(figures).toHaveLength(1)
+    expect(waiting.get('.participant-summary__waiting').classes()).toContain(
+      'participant-summary__waiting',
+    )
     expect(figures[0].text()).toContain('Sara')
     const personGroup = figures[0].get('[role="group"]')
     expect(personGroup.attributes('aria-label')).toBe('Sara')

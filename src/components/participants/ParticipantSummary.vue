@@ -49,8 +49,11 @@ const seating = computed(() => assignSeats(props.participants))
 </script>
 
 <template>
-  <section class="mx-auto w-full max-w-2xl space-y-5" aria-labelledby="participants-title">
-    <header class="flex items-end justify-between gap-4">
+  <section
+    class="participant-summary mx-auto w-full max-w-2xl space-y-5"
+    aria-labelledby="participants-title"
+  >
+    <header class="participant-summary__header flex items-end justify-between gap-4">
       <div>
         <p class="text-sm font-bold uppercase tracking-[0.18em] text-primary">Oggi</p>
         <h1 id="participants-title" class="text-3xl font-black">{{ participantLabel }}</h1>
@@ -64,7 +67,10 @@ const seating = computed(() => assignSeats(props.participants))
       Nessuno va ancora in mensa.
     </p>
     <template v-else>
-      <ul v-if="seating.cars.length" class="flex flex-wrap justify-center gap-x-8 gap-y-10">
+      <ul
+        v-if="seating.cars.length"
+        class="participant-summary__cars flex flex-wrap justify-center gap-x-8 gap-y-10"
+      >
         <CarpoolCar
           v-for="car in seating.cars"
           :key="car.driver.id"
@@ -82,7 +88,9 @@ const seating = computed(() => assignSeats(props.participants))
         data-testid="waiting-area"
       >
         <h2 id="waiting-title" class="text-center text-lg font-black">In attesa di un passaggio</h2>
-        <ul class="flex flex-wrap items-end justify-center gap-x-4 gap-y-6">
+        <ul
+          class="participant-summary__waiting flex flex-wrap items-end justify-center gap-x-4 gap-y-6"
+        >
           <ParticipantFigure
             v-for="participant in seating.waiting"
             :key="participant.id"

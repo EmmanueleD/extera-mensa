@@ -21,7 +21,7 @@ const isOwner = computed(() => props.participant.id === props.ownerId)
 </script>
 
 <template>
-  <li class="w-32" data-testid="participant-figure">
+  <li class="participant-figure-item w-32" data-testid="participant-figure">
     <div role="group" :aria-label="participant.display_name" class="carpool-figure text-center">
       <p
         v-if="participant.message"
