@@ -1,5 +1,6 @@
 import { mount } from '@vue/test-utils'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { AVATAR_DECORATIONS, createAvatarRecipe } from '../../lib/avatar/avatar'
 import OrganicAvatar from './OrganicAvatar.vue'
 
 function stubMatchMedia(matches: boolean) {
@@ -17,6 +18,16 @@ function stubMatchMedia(matches: boolean) {
 afterEach(() => {
   vi.unstubAllGlobals()
 })
+
+function seedMatching(
+  predicate: (recipe: ReturnType<typeof createAvatarRecipe>) => boolean,
+): string {
+  for (let index = 0; index < 256; index += 1) {
+    const seed = `component-seed-${index}`
+    if (predicate(createAvatarRecipe(seed, 'teal'))) return seed
+  }
+  throw new Error('No representative avatar seed found')
+}
 
 describe('OrganicAvatar', () => {
   it('labels the avatar for assistive technology when a name is provided', () => {
@@ -45,6 +56,29 @@ describe('OrganicAvatar', () => {
     expect(first).toBe(second)
     expect(first).toContain('var(--avatar-violet)')
     expect(first).not.toContain('#')
+  })
+
+  it('renders optional spots and each decoration through Vue-owned SVG elements', () => {
+    const spottedSeed = seedMatching(({ geometry }) => geometry.spots.length > 0)
+    const spotted = mount(OrganicAvatar, {
+      props: { seed: spottedSeed, color: 'teal', size: 32 },
+    })
+    expect(spotted.get('svg').attributes('width')).toBe('32')
+    expect(spotted.findAll('.avatar-spot')).toHaveLength(
+      createAvatarRecipe(spottedSeed, 'teal').geometry.spots.length,
+    )
+    expect(spotted.find('.avatar-silhouette').exists()).toBe(true)
+    expect(Number(spotted.get('svg').attributes('data-avatar-scale'))).toBeGreaterThanOrEqual(0.88)
+
+    for (const kind of Object.values(AVATAR_DECORATIONS)) {
+      const seed = seedMatching(({ geometry }) => geometry.decoration?.kind === kind)
+      const wrapper = mount(OrganicAvatar, { props: { seed, color: 'teal', size: 36 } })
+      expect(wrapper.get('.avatar-decoration').attributes('data-decoration')).toBe(kind)
+    }
+
+    const plainSeed = seedMatching(({ geometry }) => geometry.decoration === null)
+    const plain = mount(OrganicAvatar, { props: { seed: plainSeed, color: 'teal' } })
+    expect(plain.find('.avatar-decoration').exists()).toBe(false)
   })
 
   it('falls back to a curated fill for an unknown stored color', () => {

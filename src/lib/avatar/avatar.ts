@@ -70,6 +70,8 @@ export const AVATAR_VARIANTS = {
   PEBBLE: 'pebble',
   LEAF: 'leaf',
   BLOOM: 'bloom',
+  STAR: 'star',
+  CLOUD: 'cloud',
 } as const
 
 export type AvatarVariant = (typeof AVATAR_VARIANTS)[keyof typeof AVATAR_VARIANTS]
@@ -81,12 +83,15 @@ interface VariantShape {
   base: number
   spread: number
   squash: number
+  alternatingRadius: number
 }
 
 const VARIANT_SHAPES: Record<AvatarVariant, VariantShape> = {
-  pebble: { lobes: 6, base: 30, spread: 5, squash: 1 },
-  leaf: { lobes: 5, base: 31, spread: 6, squash: 1.08 },
-  bloom: { lobes: 7, base: 29, spread: 7, squash: 0.94 },
+  pebble: { lobes: 7, base: 31, spread: 3, squash: 0.92, alternatingRadius: 0 },
+  leaf: { lobes: 6, base: 29, spread: 4, squash: 1.15, alternatingRadius: 2 },
+  bloom: { lobes: 10, base: 28, spread: 3, squash: 1, alternatingRadius: 5 },
+  star: { lobes: 8, base: 29, spread: 3, squash: 1, alternatingRadius: 8 },
+  cloud: { lobes: 9, base: 30, spread: 6, squash: 0.82, alternatingRadius: 1 },
 }
 
 export interface AvatarPoint {
@@ -100,12 +105,32 @@ export interface AvatarEye {
   r: number
 }
 
+export interface AvatarSpot extends AvatarEye {
+  opacity: number
+}
+
+export const AVATAR_DECORATIONS = {
+  CHEEKS: 'cheeks',
+  FRECKLES: 'freckles',
+  SPARK: 'spark',
+} as const
+
+export type AvatarDecorationKind = (typeof AVATAR_DECORATIONS)[keyof typeof AVATAR_DECORATIONS]
+
+export interface AvatarDecoration {
+  kind: AvatarDecorationKind
+  marks: AvatarEye[]
+  path: string | null
+}
+
 export interface AvatarGeometry {
   silhouette: string
   highlight: string
   eyes: AvatarEye[]
   mouth: string
-  accent: AvatarEye | null
+  scale: number
+  spots: AvatarSpot[]
+  decoration: AvatarDecoration | null
   tilt: number
 }
 
@@ -145,13 +170,15 @@ function buildBlob(
   base: number,
   spread: number,
   squash: number,
+  alternatingRadius = 0,
   centerX = 50,
   centerY = 50,
 ): string {
   const points: AvatarPoint[] = []
   for (let index = 0; index < lobes; index += 1) {
     const angle = (index / lobes) * Math.PI * 2 - Math.PI / 2
-    const radius = base + random() * spread
+    const alternatingOffset = (index % 2 === 0 ? 1 : -1) * alternatingRadius
+    const radius = base + random() * spread + alternatingOffset
     points.push({
       x: centerX + Math.cos(angle) * radius,
       y: centerY + Math.sin(angle) * radius * squash,
@@ -160,10 +187,62 @@ function buildBlob(
   return closedCurve(points)
 }
 
+function buildSpots(random: () => number): AvatarSpot[] {
+  const count = Math.floor(random() * 4)
+  return Array.from({ length: count }, (_, index) => ({
+    cx: 31 + index * 17 + (random() - 0.5) * 7,
+    cy: 30 + random() * 40,
+    r: 1.8 + random() * 2.2,
+    opacity: 0.14 + random() * 0.16,
+  }))
+}
+
+function buildDecoration(random: () => number): AvatarDecoration | null {
+  const choice = Math.floor(random() * 4)
+  if (choice === 0) return null
+
+  if (choice === 1) {
+    return {
+      kind: AVATAR_DECORATIONS.CHEEKS,
+      marks: [
+        { cx: 32, cy: 59, r: 3.8 },
+        { cx: 68, cy: 59, r: 3.8 },
+      ],
+      path: null,
+    }
+  }
+
+  if (choice === 2) {
+    return {
+      kind: AVATAR_DECORATIONS.FRECKLES,
+      marks: [
+        { cx: 34, cy: 56, r: 1.25 },
+        { cx: 39, cy: 58, r: 1.1 },
+        { cx: 61, cy: 58, r: 1.1 },
+        { cx: 66, cy: 56, r: 1.25 },
+      ],
+      path: null,
+    }
+  }
+
+  return {
+    kind: AVATAR_DECORATIONS.SPARK,
+    marks: [],
+    path: 'M 66 25 L 68 31 L 74 33 L 68 35 L 66 41 L 64 35 L 58 33 L 64 31 Z',
+  }
+}
+
 function buildGeometry(random: () => number, variant: AvatarVariant): AvatarGeometry {
   const shape = VARIANT_SHAPES[variant]
-  const silhouette = buildBlob(random, shape.lobes, shape.base, shape.spread, shape.squash)
-  const highlight = buildBlob(random, 5, 9 + random() * 3, 2.5, 1, 37, 34)
+  const silhouette = buildBlob(
+    random,
+    shape.lobes,
+    shape.base,
+    shape.spread,
+    shape.squash,
+    shape.alternatingRadius,
+  )
+  const highlight = buildBlob(random, 5, 9 + random() * 3, 2.5, 1, 0, 37, 34)
 
   const eyeOffset = 11 + random() * 5
   const eyeY = 45 + random() * 5
@@ -182,12 +261,16 @@ function buildGeometry(random: () => number, variant: AvatarVariant): AvatarGeom
     `${round(50 + mouthWidth)} ${round(mouthY)}`,
   ].join(' ')
 
-  const accent: AvatarEye | null =
-    variant === AVATAR_VARIANTS.BLOOM
-      ? { cx: 68 + (random() - 0.5) * 6, cy: 28 + (random() - 0.5) * 6, r: 3 + random() * 2.5 }
-      : null
-
-  return { silhouette, highlight, eyes, mouth, accent, tilt: random() * 24 - 12 }
+  return {
+    silhouette,
+    highlight,
+    eyes,
+    mouth,
+    scale: 0.88 + random() * 0.12,
+    spots: buildSpots(random),
+    decoration: buildDecoration(random),
+    tilt: random() * 24 - 12,
+  }
 }
 
 /** Builds the stable recipe for a seed and stored palette color. */
