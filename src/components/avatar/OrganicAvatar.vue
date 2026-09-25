@@ -34,33 +34,60 @@ const animated = computed(() => !prefersReducedMotion.value)
     :aria-label="label"
     :aria-hidden="label ? undefined : 'true'"
     focusable="false"
+    :data-avatar-variant="recipe.variant"
+    :data-avatar-scale="geometry.scale"
   >
     <g :transform="`rotate(${geometry.tilt} 50 50)`">
       <g :class="animated ? 'avatar-breathe' : undefined">
-        <path :d="geometry.silhouette" :fill="fill" />
-        <path :d="geometry.highlight" fill="var(--color-base-100)" opacity="0.35" />
-        <circle
-          v-for="(eye, index) in geometry.eyes"
-          :key="`eye-${index}`"
-          :cx="eye.cx"
-          :cy="eye.cy"
-          :r="eye.r"
-          fill="var(--color-base-content)"
-        />
-        <path
-          :d="geometry.mouth"
-          fill="none"
-          stroke="var(--color-base-content)"
-          stroke-width="3.2"
-          stroke-linecap="round"
-        />
-        <circle
-          v-if="geometry.accent"
-          :cx="geometry.accent.cx"
-          :cy="geometry.accent.cy"
-          :r="geometry.accent.r"
-          fill="var(--color-accent)"
-        />
+        <g :transform="`translate(50 50) scale(${geometry.scale}) translate(-50 -50)`">
+          <path class="avatar-silhouette" :d="geometry.silhouette" :fill="fill" />
+          <circle
+            v-for="(spot, index) in geometry.spots"
+            :key="`spot-${index}`"
+            class="avatar-spot"
+            :cx="spot.cx"
+            :cy="spot.cy"
+            :r="spot.r"
+            fill="var(--color-base-content)"
+            :opacity="spot.opacity"
+          />
+          <path :d="geometry.highlight" fill="var(--color-base-100)" opacity="0.35" />
+          <circle
+            v-for="(eye, index) in geometry.eyes"
+            :key="`eye-${index}`"
+            :cx="eye.cx"
+            :cy="eye.cy"
+            :r="eye.r"
+            fill="var(--color-base-content)"
+          />
+          <path
+            :d="geometry.mouth"
+            fill="none"
+            stroke="var(--color-base-content)"
+            stroke-width="3.2"
+            stroke-linecap="round"
+          />
+          <g
+            v-if="geometry.decoration"
+            class="avatar-decoration"
+            :data-decoration="geometry.decoration.kind"
+          >
+            <circle
+              v-for="(mark, index) in geometry.decoration.marks"
+              :key="`decoration-${index}`"
+              :cx="mark.cx"
+              :cy="mark.cy"
+              :r="mark.r"
+              fill="var(--color-accent)"
+              opacity="0.65"
+            />
+            <path
+              v-if="geometry.decoration.path"
+              :d="geometry.decoration.path"
+              fill="var(--color-accent)"
+            />
+          </g>
+        </g>
       </g>
     </g>
   </svg>
