@@ -23,7 +23,7 @@ Give each newly registered profile a random curated avatar color, keep car avata
 ## Tasks
 
 - [x] T1 Database default: add a migration and pgTAP evidence for random curated colors on future profiles.
-- [ ] T2 Stable layout: remove message-dependent car displacement and add a regression covering stable avatar positioning.
+- [x] T2 Stable layout: remove message-dependent car displacement and add a regression covering stable avatar positioning.
 - [ ] T3 Owner interaction: propagate current-user identity and make only the owner avatar an accessible edit control.
 - [ ] T4 Compact editor: add message text/color editing, remove action, focus restoration, and immediate participant refresh.
 - [ ] T5 Verification: run focused database/component checks and aggregate verification.
@@ -45,4 +45,5 @@ Stacked branch based on `fix/production-reliability`. The base repair branch rem
 
 ## Evidence
 
-- T1 database verification: `npm run db:start`; `npm exec -- supabase migration up --local`; `npm run test:db` (64/64 assertions passed, including 17/17 profile assertions); `npm run db:stop`.
+- T1 commit: `0cc38d6` (`feat(profile): randomize initial avatar colors`). Database verification: `npm run db:start`; `npm exec -- supabase migration up --local`; `npm run test:db` (64/64 assertions passed, including 17/17 profile assertions); `npm run db:stop`.
+- T2 verification: focused ParticipantSummary suite 11/11, targeted ESLint passed, Prettier passed, and typecheck passed. Independent re-verification confirmed no unrelated steering-wheel or owner-edit changes.

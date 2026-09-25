@@ -17,7 +17,6 @@ const SEATS_PER_ROW = 5
 const occupants = computed<Participant[]>(() => [props.car.driver, ...props.car.passengers])
 const emptySeats = computed(() => Array.from({ length: props.car.emptySeats }, (_, i) => i))
 const label = computed(() => carLabel(props.car))
-const hasMessages = computed(() => occupants.value.some((person) => person.message))
 const expandedParticipantIds = ref(new Set<string>())
 
 const participantInitial = (person: Participant) =>
@@ -45,13 +44,7 @@ const seatGrid = computed(() => ({
 
 <template>
   <li class="flex max-w-full flex-col items-center gap-3" data-testid="carpool-car">
-    <div
-      role="group"
-      :aria-label="label"
-      class="carpool-car"
-      :class="{ 'carpool-car--has-messages': hasMessages }"
-      :style="paint"
-    >
+    <div role="group" :aria-label="label" class="carpool-car" :style="paint">
       <div class="carpool-car__cabin">
         <div class="grid gap-1.5" :style="seatGrid">
           <div
