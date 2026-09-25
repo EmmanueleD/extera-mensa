@@ -40,7 +40,12 @@ Give each newly registered profile a random curated avatar color, keep car avata
 
 ## Delivery
 
-Stacked branch based on `fix/production-reliability`. The base repair branch remains independently reviewable.
+The original stacked base, `fix/production-reliability`, merged to `main` as PR #20 before this feature shipped. The feature was then delivered as four sequential review slices to keep every PR below the 400-line review budget:
+
+1. PR #21 — random avatar color.
+2. PR #22 — stable message layout.
+3. PR #23 — compact message editor.
+4. PR #24 — owner-only Today integration and final evidence.
 
 ## Evidence
 
@@ -49,4 +54,4 @@ Stacked branch based on `fix/production-reliability`. The base repair branch rem
 - T3 editor commit: `9c1e52a` (`feat(profile): add compact message editor`).
 - T3 integration commit: `190f61a` (`feat(today): edit messages from own avatar`). Integration verification: 25/25 focused tests passed plus targeted ESLint, Prettier, and typecheck. Independent re-verification confirmed owner-only interaction, nested presence semantics, stale-error reset, partial updates, Save/Remove refresh, focus restoration, and unchanged ProfileDrawer.
 - T4 aggregate verification: `npm run verify` passed (14/14 files, 95/95 unit tests, production build with 112 modules). Database lifecycle passed with no reset (4/4 files, 64/64 assertions). Manual browser/responsive visual verification was not run.
-- Delivery remains local on `feat/avatar-message-editor`; push, PR, and merge were not performed.
+- Delivery branches were pushed. PRs #21, #22, and #23 merged to `main` with successful Vercel checks; PR #24 is the final production delivery slice.
