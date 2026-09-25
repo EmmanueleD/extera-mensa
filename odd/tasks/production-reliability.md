@@ -32,7 +32,7 @@ Restore reliable production login, direct-route reloads, and driver visibility u
 - [x] T2 Auth recovery: preserve provider error codes, show an actionable unconfirmed-account message, and add an idempotent hosted repair/diagnostic SQL file. Route: delegated writer.
 - [x] T3 Driver visibility: add a named reproduction for the actual driver avatar element and repair only the proven rendering failure; include hosted declaration diagnostics. Route: delegated writer.
 - [ ] T4 Run aggregate and database verification plus structural review. Skipped by explicit user instruction before delivery.
-- [ ] T5 Commit and push the repair; PR and merge remain explicit delivery decisions. Route: parent delivery.
+- [x] T5 Commit and push the repair; PR and merge remain explicit delivery decisions. Route: parent delivery.
 
 ## Acceptance criteria
 
@@ -58,9 +58,10 @@ Branch `fix/production-reliability`, based on production `main` after PR #19.
 
 ## Delivery evidence
 
-- T1–T3 implementation completed locally.
+- T1–T3 implementation commit: `378d2ca` (`fix(production): restore reliable hosted flows`).
 - T4 skipped by explicit user instruction; no fresh pre-commit verification was run.
+- Delivery branch: `fix/production-reliability`.
 
 ## Next step
 
-Commit and push the production reliability repair. PR and merge remain explicit delivery decisions.
+PR and merge remain explicit delivery decisions.
