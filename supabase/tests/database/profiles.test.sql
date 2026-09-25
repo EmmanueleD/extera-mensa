@@ -1,11 +1,22 @@
 begin;
 
 create extension if not exists pgtap with schema extensions;
-select plan(14);
+select plan(17);
 
 select has_table('public', 'profiles', 'profiles table exists');
 select has_pk('public', 'profiles', 'profiles has a primary key');
 select hasnt_column('public', 'profiles', 'email', 'profiles never expose email');
+select ok(
+  (
+    select column_default is not null
+      and column_default <> '''coral''::text'
+    from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'profiles'
+      and column_name = 'avatar_color'
+  ),
+  'avatar color default is not the fixed coral literal'
+);
 
 insert into auth.users (
   id,
@@ -56,6 +67,55 @@ select is(
 select ok(
   (select bool_and(avatar_seed is not null) from public.profiles),
   'profiles receive persistent avatar seeds'
+);
+update public.profiles
+set avatar_color = 'violet'
+where id = '00000000-0000-0000-0000-000000000001';
+
+insert into auth.users (
+  id,
+  instance_id,
+  aud,
+  role,
+  email,
+  encrypted_password,
+  email_confirmed_at,
+  raw_app_meta_data,
+  raw_user_meta_data
+)
+values (
+  '00000000-0000-0000-0000-000000000004',
+  '00000000-0000-0000-0000-000000000000',
+  'authenticated',
+  'authenticated',
+  'marco@example.test',
+  'unused',
+  now(),
+  '{"provider":"email","providers":["email"]}',
+  '{"display_name":"Marco"}'
+);
+
+select ok(
+  (
+    select bool_and(
+      avatar_color in ('coral', 'teal', 'sun', 'violet', 'blue', 'pink')
+    )
+    from public.profiles
+    where id in (
+      '00000000-0000-0000-0000-000000000002',
+      '00000000-0000-0000-0000-000000000004'
+    )
+  ),
+  'trigger-created profiles receive colors from the curated palette'
+);
+select is(
+  (
+    select avatar_color
+    from public.profiles
+    where id = '00000000-0000-0000-0000-000000000001'
+  ),
+  'violet',
+  'explicitly stored avatar colors remain unchanged when new profiles are created'
 );
 select throws_like(
   $$
