@@ -239,7 +239,7 @@ body {
   opacity: 1;
 }
 
-.carpool-seat-bubble {
+.speech-bubble.carpool-seat-bubble {
   position: absolute;
   z-index: 10;
   bottom: calc(100% + 0.65rem);

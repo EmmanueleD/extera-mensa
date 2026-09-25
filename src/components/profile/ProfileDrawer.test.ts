@@ -79,41 +79,32 @@ describe('ProfileDrawer', () => {
     expect(wrapper.emitted('close')).toBeUndefined()
   })
 
-  it('clears the message and persists no current message', async () => {
+  it('does not expose message editing controls', async () => {
     const wrapper = await openDrawer()
 
-    await wrapper.get('[data-action="clear-message"]').trigger('click')
-    expect((wrapper.get('textarea').element as HTMLTextAreaElement).value).toBe('')
-
-    await wrapper.get('form').trigger('submit')
-    await flushPromises()
-
-    expect(db.updateArgs?.message).toBeNull()
-    expect(wrapper.emitted('close')).toHaveLength(1)
+    expect(wrapper.find('textarea').exists()).toBe(false)
+    expect(wrapper.find('[data-action="clear-message"]').exists()).toBe(false)
+    expect(wrapper.find('input[name="messageTextColor"]').exists()).toBe(false)
+    expect(wrapper.text()).not.toContain('Arrivo alle 12')
+    expect(wrapper.text()).not.toContain('Colore del messaggio')
   })
 
-  it('regenerates the avatar seed while retaining the selected colors', async () => {
+  it('updates only the name and avatar fields', async () => {
     const wrapper = await openDrawer()
 
+    await wrapper.get('input[type="text"]').setValue('  Beatrice  ')
     await wrapper.get('input[name="avatarColor"][value="teal"]').setValue()
     await wrapper.get('[data-action="regenerate"]').trigger('click')
     await wrapper.get('form').trigger('submit')
     await flushPromises()
 
-    expect(db.updateArgs?.avatar_color).toBe('teal')
+    expect(db.updateArgs).toEqual({
+      display_name: 'Beatrice',
+      avatar_seed: expect.any(String),
+      avatar_color: 'teal',
+    })
     expect(db.updateArgs?.avatar_seed).not.toBe('seed-anna')
-    expect(typeof db.updateArgs?.avatar_seed).toBe('string')
-  })
-
-  it('blocks saving an over-length message before any request', async () => {
-    const wrapper = await openDrawer()
-
-    await wrapper.get('textarea').setValue('a'.repeat(141))
-    await wrapper.get('form').trigger('submit')
-    await flushPromises()
-
-    expect(wrapper.get('[role="alert"]').text()).toContain('140')
-    expect(db.updateArgs).toBeNull()
+    expect(wrapper.emitted('close')).toHaveLength(1)
   })
 
   it('closes on Escape and restores focus to the trigger', async () => {
