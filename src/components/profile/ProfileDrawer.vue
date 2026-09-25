@@ -68,7 +68,7 @@ watch(
 </script>
 
 <template>
-  <div v-if="open" class="fixed inset-0 z-40 flex justify-end">
+  <div v-if="open" class="profile-drawer fixed inset-0 z-40 flex justify-end">
     <button
       class="absolute inset-0 cursor-default bg-neutral/40"
       type="button"
@@ -80,7 +80,7 @@ watch(
       role="dialog"
       aria-modal="true"
       aria-labelledby="profile-title"
-      class="relative z-10 flex h-full w-full max-w-md flex-col overflow-y-auto bg-base-100 p-6 shadow-2xl"
+      class="profile-drawer__panel relative z-10 flex h-full w-full max-w-md flex-col overflow-y-auto bg-base-100 p-6 shadow-2xl"
       @keydown.esc.stop="close"
     >
       <header class="flex items-center justify-between gap-4">
@@ -97,7 +97,7 @@ watch(
       ></div>
 
       <form v-else class="mt-6 flex flex-1 flex-col gap-5" @submit.prevent="save">
-        <div class="flex items-center gap-4">
+        <div class="profile-drawer__avatar flex items-center gap-4">
           <OrganicAvatar
             :seed="avatarSeed"
             :color="avatarColor"
@@ -130,7 +130,11 @@ watch(
         <fieldset>
           <legend class="font-bold">Colore avatar</legend>
           <div class="mt-2 flex flex-wrap gap-3">
-            <label v-for="color in AVATAR_PALETTE" :key="color" class="cursor-pointer">
+            <label
+              v-for="color in AVATAR_PALETTE"
+              :key="color"
+              class="profile-drawer__color-option cursor-pointer"
+            >
               <input
                 v-model="avatarColor"
                 class="sr-only"
@@ -153,7 +157,7 @@ watch(
           {{ profile.error.value }}
         </p>
 
-        <div class="mt-auto flex gap-2 pt-6">
+        <div class="profile-drawer__actions mt-auto flex gap-2 pt-6">
           <button class="btn btn-primary flex-1" type="submit" :disabled="profile.saving.value">
             <span
               v-if="profile.saving.value"

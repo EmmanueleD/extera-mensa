@@ -61,6 +61,16 @@ beforeEach(() => {
 })
 
 describe('TodayPage', () => {
+  it('uses the responsive daily form while retaining both answer actions', async () => {
+    const wrapper = mount(TodayPage)
+    await flushPromises()
+
+    expect(wrapper.get('section').classes()).toContain('today-page')
+    expect(wrapper.get('form').classes()).toContain('today-form')
+    expect(wrapper.get('[data-answer="yes"]').text()).toBe('Sì')
+    expect(wrapper.get('[data-answer="no"]').text()).toBe('No')
+  })
+
   it('offers only the ride and car options', async () => {
     const wrapper = mount(TodayPage)
     await flushPromises()

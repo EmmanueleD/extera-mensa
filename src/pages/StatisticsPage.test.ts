@@ -74,6 +74,10 @@ describe('StatisticsPage', () => {
     await flushPromises()
 
     expect(rpc).toHaveBeenCalledWith('get_attendance_statistics', { p_range: '30' })
+    expect(wrapper.get('.statistics-page').classes()).toContain('statistics-page')
+    const range = wrapper.get('.statistics-range')
+    expect(range.attributes('aria-label')).toBe('Intervallo temporale')
+    expect(range.findAll('button')).toHaveLength(4)
     expect(wrapper.get('[data-range="30"]').attributes('aria-pressed')).toBe('true')
   })
 
@@ -124,6 +128,7 @@ describe('StatisticsPage', () => {
     expect(items[0].text()).toContain('2 presenze')
     expect(items[1].text()).toContain('Luca')
     expect(items[1].text()).toContain('1 presenza')
+    expect(items.every((item) => item.classes().includes('statistics-ranking__row'))).toBe(true)
   })
 
   it('shows an empty state when the range has no data', async () => {
