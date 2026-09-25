@@ -7,9 +7,8 @@ import type { Database } from '../types/database'
 export type Profile = Database['public']['Tables']['profiles']['Row']
 
 /** Owner-writable fields. Row Level Security still restricts the row to self. */
-export type ProfileUpdate = Pick<
-  Profile,
-  'display_name' | 'message' | 'avatar_seed' | 'avatar_color' | 'message_text_color'
+export type ProfileUpdate = Partial<
+  Pick<Profile, 'display_name' | 'message' | 'avatar_seed' | 'avatar_color' | 'message_text_color'>
 >
 
 const profile = ref<Profile | null>(null)
@@ -72,6 +71,10 @@ export function useProfile() {
     }
   }
 
+  function resetError() {
+    error.value = null
+  }
+
   function openDrawer() {
     open.value = true
   }
@@ -80,5 +83,16 @@ export function useProfile() {
     open.value = false
   }
 
-  return { profile, open, loading, saving, error, load, update, openDrawer, closeDrawer }
+  return {
+    profile,
+    open,
+    loading,
+    saving,
+    error,
+    load,
+    update,
+    resetError,
+    openDrawer,
+    closeDrawer,
+  }
 }
